@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #define DIM 3
 
 int main(){

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define DIM 2
+#define DIM 3
 
 double vec_squared(double vec[], size_t size){
     double ret;
@@ -24,8 +24,13 @@ int main(){
     int N = T / dt;
     int pN = 2;
 
-    double r0[DIM] = {1.5, 0};
-    double v0[DIM] = {0, 0.1};
+    double r0[DIM] = {1.5, -1, -1.5};
+    double v0[DIM] = {0, 0.1, 0};
 
     double r[N][pN][DIM];
+
+    double *a;
+    a = acc(r0);
+
+    printf("(%f, %f, %f)\n", a[0], a[1], a[2]);
 }
