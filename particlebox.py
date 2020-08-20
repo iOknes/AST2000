@@ -6,7 +6,7 @@ pN = 1000
 
 #Simulation parameters
 dt = 1e-2
-N = 1000
+N = 10000
 l = 1
 dim = 3
 
