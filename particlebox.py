@@ -1,12 +1,12 @@
 import numpy as np
-from xyz import savexyz
+from modules import xyz
 
 #Particle parameters
-pN = 1000
+pN = 10000
 
 #Simulation parameters
 dt = 1e-2
-N = 10000
+N = 1000
 l = 1
 dim = 3
 
@@ -26,4 +26,4 @@ for i in range(N-1):
     r[i+1, r[i+1] < 0] = -r[i+1, r[i+1] < 0]
     r[i+1, r[i+1] > l] = r[i+1, r[i+1] > l] - 2 * (r[i+1, r[i+1] > l] - l)
 
-savexyz(r, "particlebox")
+xyz.save(r, "particlebox")
