@@ -140,7 +140,7 @@ if __name__ == "__main__":
     RC1.run_chamber_mp()
     t_1 = time.time()
     print(t_1 - t_0, "\n \n")
-    #RC1.run_chamber()
+    RC1.run_chamber()
     t_2 = time.time()
     print(t_2 - t_1)
 

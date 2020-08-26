@@ -70,7 +70,7 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
 
         # finds which particles are outside the nozzle in the z-plane,
         # using the values from the xy-plane
-        z_outside =  (pos[:,2] >= (end_box) )
+        z_outside =  (pos[:,2] <= (-end_box) )
         z_esc = np.logical_and(xy_esc, z_outside)
 
         for k in range(len(xy_esc)):
@@ -89,7 +89,7 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
                 pos.flat[k] = -(2*end_box) - pos.flat[k]
 
             elif part_outside_pos.flat[k] == True:
-                assert part_outside_pos.flat[k] != part_outside_neg.flat[k]
+                assert part_outside_neg.flat[k] != part_outside_pos.flat[k]
                 vel_wall += np.abs(vel.flat[k])
                 vel.flat[k] = -vel.flat[k]
                 pos.flat[k] = (2*end_box) - pos.flat[k]
