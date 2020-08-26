@@ -4,10 +4,9 @@ from time import time
 
 #Particle parameters
 pN = 10000
-T = 12.373
 
 #Simulation parameters
-dt = 1e-3
+dt = 1e-2
 N = 1000
 l = 1
 dim = 3
@@ -15,7 +14,7 @@ dim = 3
 t_start = time()
 
 r_init = np.random.uniform(0, 1, (pN, dim))
-v_init = np.random.normal(0, T, (pN, dim))
+v_init = np.random.normal(0, 1, (pN, dim))
 
 r = np.zeros((N, pN, dim))
 v = np.zeros((N, pN, dim))
