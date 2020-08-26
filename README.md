@@ -1,2 +1,2 @@
 # AST2000 project
-<img src="https://render.githubusercontent.com/render/math?math=\LaTeX">
+This is a solution to the project run of the UiO course AST2000.
