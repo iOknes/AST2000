@@ -3,7 +3,7 @@ from modules import xyz
 from time import time
 
 #Particle parameters
-pN = 10000
+pN = 100
 sigma = np.sqrt(3000 / 242.466)
 
 #Simulation parameters
