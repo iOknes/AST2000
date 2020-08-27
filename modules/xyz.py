@@ -1,7 +1,7 @@
 #A tiny module to write itterables to .XYZ files
 import os
 
-class file:
+class File:
     def __init__(self, fname, overwrite=False):
         if fname[-4:].lower() != ".xyz":
             fname += ".xyz"
