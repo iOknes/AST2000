@@ -83,13 +83,13 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
             # dimension where they are outside, and puts the particles back
             # inside the box in the dimension they are outside
             if part_outside_neg.flat[k] == True:
-                assert part_outside_pos.flat[k] != part_outside_neg.flat[k]
+                #assert part_outside_pos.flat[k] != part_outside_neg.flat[k]
                 vel_wall += np.abs(vel.flat[k])
                 vel.flat[k] = -vel.flat[k]
                 pos.flat[k] = -(2*end_box) - pos.flat[k]
 
             elif part_outside_pos.flat[k] == True:
-                assert part_outside_neg.flat[k] != part_outside_pos.flat[k]
+                #assert part_outside_neg.flat[k] != part_outside_pos.flat[k]
                 vel_wall += np.abs(vel.flat[k])
                 vel.flat[k] = -vel.flat[k]
                 pos.flat[k] = (2*end_box) - pos.flat[k]

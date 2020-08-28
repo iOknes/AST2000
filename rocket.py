@@ -26,13 +26,11 @@ class Rocket_Chamber():
         # Physical Variables
         self.T = float(temp)
         self.L = float(L)
+        self.l = float(L)
         self.m = float(particle_mass)
         self.n_p = int(num_part)
 
-        if nozzle == None:
-            self.nozzle = self.L / 2
-        else:
-            self.nozzle = nozzle
+        self.nozzle = nozzle
 
         # Simulation Variables
         self.t = float(time_run)
@@ -61,6 +59,9 @@ class Rocket_Chamber():
         self.T_0 = (self.m * (self.L**2)) / (self.k * (self.t**2)) * self.k_m
         self.T_m = self.T / self.T_0
         self.sigma_m = np.sqrt((self.k_m*self.T_m) / self.m_m)
+        self.L = self.l * 1e-3
+        if self.nozzle == None:
+            self.nozzle = self.L/2
 
         print(self.sigma_m)
         self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
@@ -69,7 +70,10 @@ class Rocket_Chamber():
                                     size = (self.n_p, 3))
 
     def setup_chamber(self):
+        if self.nozzle == None:
+            self.nozzle = self.L/2
         self.sigma = np.sqrt((self.k*self.T) / self.m)
+        print(self.sigma)
         self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
                                      size = (self.n_p,3))
         self.vel = np.random.normal(loc = 0.0, scale = self.sigma,
@@ -133,61 +137,13 @@ class Rocket_Chamber():
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
                          time_run = 1e-9,
-                         dt=1e-12,
+                         dt=1e-13,
                          num_part = 1e5,
                          scaled = True)
     t_0 = time.time()
     RC1.run_chamber_mp()
     t_1 = time.time()
     print(t_1 - t_0, "\n \n")
-    RC1.run_chamber()
-    t_2 = time.time()
-    print(t_2 - t_1)
-
-
-    """
-N = 1.00e+03
-n_p = 1.00e+05
-
-1.23e+04
-
--4.49e+04
-
--1.50e-22
-
-1.41e+03
-
-4.334902048110962
-
-
-N = 1.00e+04
-n_p = 1.00e+05
-
-1.23e+05
-
--4.48e+05
-
--1.50e-21
-
-1.41e+03
-
-42.41803288459778
-
-
-N = 1.00e+05
-n_p = 1.00e+05
-
-1.23e+06
-
--4.48e+06
-
--1.50e-20
-
-1.41e+03
-
-562.2679972648621
-
-
-
-
-    """
+    #RC1.run_chamber()
+    #t_2 = time.time()
+    #print(t_2 - t_1)
