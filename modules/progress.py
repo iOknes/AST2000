@@ -11,7 +11,7 @@ class Bar:
         display_progress_update = round(self.display_steps * self.progress / self.steps)
         if self.display_progress < display_progress_update:
             self.display_progress = display_progress_update
-            print("\r[" + self.display_progress * '#' + (self.display_steps - self.display_progress) * ' ' + ']', end='')
+            print("\r[" + self.display_progress * '#' + (self.display_steps - self.display_progress) * '.' + ']', end='')
 
     def __call__(self):
         self.increment()
