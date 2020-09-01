@@ -29,6 +29,7 @@ class Rocket_Chamber():
         self.l = float(L)
         self.m = float(particle_mass)
         self.n_p = int(num_part)
+        self.P = (self.n_p * self.T * const.k_B) / (self.L**3)
 
         if nozzle == None:
             self.nozzle = self.L / 2
@@ -87,17 +88,26 @@ class Rocket_Chamber():
         # DocString
         """
 
-        self.p_esc, self.v_esc, self.v_wall = p_box.sim_box(self.pos, self.vel,
+        self.p_esc,self.esc_vel,self.v_wall = p_box.sim_box(self.pos, self.vel,
                                                             self.L, self.nozzle,
                                                             self.N, self.dt)
 
 
+
+        self.m_esc = self.esc_vel * self.m
+        self.F = self.m_esc / self.t
+        self.F_wall = ((self.v_wall / 3) * self.m) / self.t
+        self.P_num = self.F_wall / (self.L**2)
+
         print(f"N = {self.N:.2e}")
         print(f"n_p = {self.n_p:.2e}", "\n")
         print(f"p_esc = {self.p_esc:.2e}", "\n")
-        print(f"v_esc = {self.v_esc:.2e}", "\n")
+        print(f"v_esc = {self.esc_vel:.2e}", "\n")
         print(f"v_wall = {self.v_wall:.2e}", "\n")
-        print(f"m_esc = {self.v_esc * self.m}", "\n")
+        print(f"m_esc = {self.m_esc}", "\n")
+        print(f"F = {self.F:.2e}", "\n")
+        print(f"P_num = {self.P_num:.2e}", "\n")
+        print(f"P = {self.P:.2e}", "\n")
 
     def run_chamber_mp(self):
 
@@ -114,25 +124,30 @@ class Rocket_Chamber():
         results = pool.starmap(p_box.sim_box, pool_arguments)
         pool.terminate()
 
-        self.esc_part = 0
+        self.p_esc = 0
         self.esc_vel = 0
         self.v_wall = 0
 
         for val in results:
-            self.esc_part += val[0]
+            self.p_esc += val[0]
             self.esc_vel += val[1]
             self.v_wall += val[2]
 
         self.m_esc = self.esc_vel * self.m
         self.F = self.m_esc / self.t
+        self.F_wall = ((self.v_wall / 3) * self.m) / self.t
+        self.P_num = self.F_wall / (self.L**2)
 
         print(f"N = {self.N:.2e}")
         print(f"n_p = {self.n_p:.2e}", "\n")
-        print(f"p_esc = {self.esc_part:.2e}", "\n")
+        print(f"p_esc = {self.p_esc:.2e}", "\n")
         print(f"v_esc = {self.esc_vel:.2e}", "\n")
         print(f"v_wall = {self.v_wall:.2e}", "\n")
         print(f"m_esc = {self.m_esc}", "\n")
-        print(f"F = {self.F}", "\n")
+        print(f"F = {self.F:.2e}", "\n")
+        print(f"P_num = {self.P_num:.2e}", "\n")
+        print(f"P = {self.P:.2e}", "\n")
+
 
 
     def log_sim_data(self):
@@ -144,7 +159,7 @@ class Rocket_Chamber():
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
                          time_run = 1e-9,
-                         dt=1e-12,
+                         dt=1e-13,
                          num_part = 1e5,
                          scaled = False)
     t_0 = time.time()
