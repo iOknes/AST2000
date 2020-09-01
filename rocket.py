@@ -43,8 +43,8 @@ class Rocket_Chamber():
 
         # Statistical Variables
         self.k = float(const.k_B)
-        self.pressure = (self.N * self.k * self.T) / (self.L**3)
 
+        # Initialisation functions
         self.set_seed()
 
         self.scaled = scaled
