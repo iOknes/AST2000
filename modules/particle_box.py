@@ -54,6 +54,7 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
     vel_esc = 0
     vel_wall = 0
     end_box = (L/2)
+    ones = np.ones((len(pos), 3))
 
     for i in range(int(steps)):
         # Calculates the next position
@@ -62,6 +63,10 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
         # finds which particles are outside the box
         part_outside_neg = np.less(pos, -end_box)
         part_outside_pos = np.greater(pos, end_box)
+        part_outside = np.logical_xor(part_outside_neg, part_outside_pos)
+        part_inside = np.logical_not(part_outside)
+
+
 
         # finds which particles are inside the nozzle area in the xy-plane
         x_outside = (np.abs(pos[:,0]) < nozzle/2)
@@ -70,31 +75,24 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
 
         # finds which particles are outside the nozzle in the z-plane,
         # using the values from the xy-plane
-        z_outside =  (pos[:,2] <= (-end_box) )
+        z_outside =  (pos[:,2] > end_box)
         z_esc = np.logical_and(xy_esc, z_outside)
+        part_esc += np.sum(z_esc)
+        vel_esc += np.sum(z_esc*vel[:,2])
 
-        for k in range(len(xy_esc)):
-            # Finds how much velocity is pushed out the nozzle
-            if (z_esc[k] == True):
-                part_esc += 1
-                vel_esc += vel[k,2]
+        # turns the velocities of the particles which are outside the box
+        turn = ones - (2*part_outside)
+        vel_wall += np.sum(np.abs(part_outside * vel))
+        #vel_wall += np.sum(part_outside_neg * np.abs(vel))
+        #vel_wall += np.sum(part_outside_pos * np.abs(vel))
+        vel = vel*turn
 
-            # flattens the truth arrays and reverses the velocity in the
-            # dimension where they are outside, and puts the particles back
-            # inside the box in the dimension they are outside
-            if part_outside_neg.flat[k] == True:
-                #assert part_outside_pos.flat[k] != part_outside_neg.flat[k]
-                vel_wall += np.abs(vel.flat[k])
-                vel.flat[k] = -vel.flat[k]
-                pos.flat[k] = -(2*end_box) - pos.flat[k]
+        # Corrects the positions of the particles which have
+        # landed outside the box
+        pos_p = (2*part_outside_pos*end_box)-(part_outside_pos * pos)
+        pos_n = (-2*part_outside_neg*end_box)-(part_outside_neg * pos)
+        pos = (part_inside * pos) + pos_p + pos_n
 
-            elif part_outside_pos.flat[k] == True:
-                #assert part_outside_neg.flat[k] != part_outside_pos.flat[k]
-                vel_wall += np.abs(vel.flat[k])
-                vel.flat[k] = -vel.flat[k]
-                pos.flat[k] = (2*end_box) - pos.flat[k]
-            else:
-                pass
 
 
     return part_esc, vel_esc, vel_wall

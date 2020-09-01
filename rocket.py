@@ -11,7 +11,7 @@ from ast2000tools.solar_system import SolarSystem
 from modules import particle_box as p_box
 from modules import xyz_module as xyz
 
-#import faulthandler; faulthandler.enable()
+import faulthandler; faulthandler.enable()
 
 class Rocket_Chamber():
 
@@ -30,7 +30,10 @@ class Rocket_Chamber():
         self.m = float(particle_mass)
         self.n_p = int(num_part)
 
-        self.nozzle = nozzle
+        if nozzle == None:
+            self.nozzle = self.L / 2
+        else:
+            self.nozzle = nozzle
 
         # Simulation Variables
         self.t = float(time_run)
@@ -56,24 +59,21 @@ class Rocket_Chamber():
     def setup_chamber_scaled(self):
         self.k_m = 1
         self.m_m = 1
+        #self.L = 1 / self.l
         self.T_0 = (self.m * (self.L**2)) / (self.k * (self.t**2)) * self.k_m
         self.T_m = self.T / self.T_0
         self.sigma_m = np.sqrt((self.k_m*self.T_m) / self.m_m)
-        self.L = self.l * 1e-3
-        if self.nozzle == None:
-            self.nozzle = self.L/2
+        #self.L = 1 #/ self.l
 
         print(self.sigma_m)
+        print(self.L)
         self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
                                      size = (self.n_p, 3))
         self.vel = np.random.normal(loc = 0.0, scale = self.sigma_m,
                                     size = (self.n_p, 3))
 
     def setup_chamber(self):
-        if self.nozzle == None:
-            self.nozzle = self.L/2
         self.sigma = np.sqrt((self.k*self.T) / self.m)
-        print(self.sigma)
         self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
                                      size = (self.n_p,3))
         self.vel = np.random.normal(loc = 0.0, scale = self.sigma,
@@ -97,6 +97,7 @@ class Rocket_Chamber():
         print(f"p_esc = {self.p_esc:.2e}", "\n")
         print(f"v_esc = {self.v_esc:.2e}", "\n")
         print(f"v_wall = {self.v_wall:.2e}", "\n")
+        print(f"m_esc = {self.v_esc * self.m}", "\n")
 
     def run_chamber_mp(self):
 
@@ -113,23 +114,29 @@ class Rocket_Chamber():
         results = pool.starmap(p_box.sim_box, pool_arguments)
         pool.terminate()
 
-        esc_part = 0
-        esc_vel = 0
-        v_wall = 0
+        self.esc_part = 0
+        self.esc_vel = 0
+        self.v_wall = 0
 
         for val in results:
-            esc_part += val[0]
-            esc_vel += val[1]
-            v_wall += val[2]
+            self.esc_part += val[0]
+            self.esc_vel += val[1]
+            self.v_wall += val[2]
+
+        self.m_esc = self.esc_vel * self.m
+        self.F = self.m_esc / self.t
 
         print(f"N = {self.N:.2e}")
         print(f"n_p = {self.n_p:.2e}", "\n")
-        print(f"p_esc = {esc_part:.2e}", "\n")
-        print(f"v_ esc = {esc_vel:.2e}", "\n")
-        print(f"v_wall = {v_wall:.2e}", "\n")
+        print(f"p_esc = {self.esc_part:.2e}", "\n")
+        print(f"v_esc = {self.esc_vel:.2e}", "\n")
+        print(f"v_wall = {self.v_wall:.2e}", "\n")
+        print(f"m_esc = {self.m_esc}", "\n")
+        print(f"F = {self.F}", "\n")
 
 
-
+    def log_sim_data(self):
+        log = np.asarray([self.esc_part, self.F])
 
 
 
@@ -137,9 +144,9 @@ class Rocket_Chamber():
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
                          time_run = 1e-9,
-                         dt=1e-13,
+                         dt=1e-12,
                          num_part = 1e5,
-                         scaled = True)
+                         scaled = False)
     t_0 = time.time()
     RC1.run_chamber_mp()
     t_1 = time.time()
