@@ -53,6 +53,9 @@ def run(r, v, l=1, dt=1e-12, N=1000, nozzle=0.5):
 
 r, v, n_esc, v_esc = run(r, v, l, dt, N)
 
+def fuel_consumed(force, fuel_consumption, mass, target_speed):
+    pass
+
 print(f"{n_esc} particles escaped and accelerated the box.")
 print(f"A total momentum of {v_esc * 3.3476e-24} kg m/s escaped the box.")
 
