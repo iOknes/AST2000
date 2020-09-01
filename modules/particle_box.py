@@ -66,8 +66,6 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
         part_outside = np.logical_xor(part_outside_neg, part_outside_pos)
         part_inside = np.logical_not(part_outside)
 
-
-
         # finds which particles are inside the nozzle area in the xy-plane
         x_outside = (np.abs(pos[:,0]) < nozzle/2)
         y_outside = (np.abs(pos[:,1]) < nozzle/2)
@@ -92,7 +90,5 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
         pos_p = (2*part_outside_pos*end_box)-(part_outside_pos * pos)
         pos_n = (-2*part_outside_neg*end_box)-(part_outside_neg * pos)
         pos = (part_inside * pos) + pos_p + pos_n
-
-
 
     return part_esc, vel_esc, vel_wall
