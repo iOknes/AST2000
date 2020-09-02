@@ -30,7 +30,7 @@ v[0] = v_init
 
 bar = progress.Bar(N)
 
-def run(r, v, l=1, dt=1e-12, N=1000, nozzle=0.5):
+def run(r, v, l=1, dt=1e-3, N=1000, nozzle=0.5):
     n_esc = 0
     v_esc = 0
     for i in range(N-1):
