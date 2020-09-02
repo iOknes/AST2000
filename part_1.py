@@ -1,6 +1,7 @@
-from time import time
 import numpy as np
 import matplotlib.pyplot as plt
+from time import time
+from modules import progress
 from ast2000tools import utils
 
 class RocketMotor:
@@ -62,9 +63,8 @@ class RocketMotor:
 
         print(f"Calculation time: {time() - t_start}s")
         
-        self.f_per_box = v_esc
+        self.f_per_box = np.abs(v_esc * self.m_0 * self.v_0 / self.t_0)
         self.fuel_consumption = n_esc
-        return r, v, n_esc, v_esc
 
     def fuel_consumed(sattelite_mass, target_speed):
         return self.fuel_consumption * target_speed / (self.f_per_box / mass)
