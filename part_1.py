@@ -1,3 +1,4 @@
+from time import time
 import numpy as np
 import matplotlib.pyplot as plt
 from ast2000tools import utils
