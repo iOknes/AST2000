@@ -150,8 +150,15 @@ class Rocket_Chamber():
 
 
 
-    def log_sim_data(self):
-        log = np.asarray([self.esc_part, self.F])
+    def log_sim_data(self, name):
+        log = {}
+        log["P"] = self.P
+        log["P_num"] = self.P_num
+        log["p_esc"] = self.p_esc
+        log["F"] = self.F
+        np.save(name, log)
+
+
 
 
 
@@ -166,6 +173,7 @@ if __name__ == "__main__":
     RC1.run_chamber_mp()
     t_1 = time.time()
     print(t_1 - t_0, "\n \n")
+    RC1.log_sim_data("data_per_box")
     #RC1.run_chamber()
     #t_2 = time.time()
     #print(t_2 - t_1)
