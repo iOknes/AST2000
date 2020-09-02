@@ -64,7 +64,8 @@ class RocketMotor:
         print(f"Calculation time: {time() - t_start}s")
         
         self.f_per_box = np.abs(v_esc * self.m_0 * self.v_0 / self.t_0)
-        self.fuel_consumption = n_esc
+        self.fuel_consumption = n_esc * self.m_0 / self.t_0
 
     def fuel_consumed(sattelite_mass, target_speed):
+
         return self.fuel_consumption * target_speed / (self.f_per_box / mass)
