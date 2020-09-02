@@ -13,7 +13,7 @@ class RocketMotor:
             print("Error: seed must be either UiO username (str) or seed generated using ast2000tools (int)!")
 
         #Seed the random number generator with the seed given as argument    
-        np.random.seed(seed)
+        np.random.seed(self.seed)
 
         #Set characteristic units
         self.l_0 = 1e-6
