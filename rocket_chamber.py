@@ -9,7 +9,6 @@ import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 
 from modules import particle_box as p_box
-from modules import xyz_module as xyz
 
 import faulthandler; faulthandler.enable()
 
@@ -150,7 +149,9 @@ class Rocket_Chamber():
 
 
 
-    def log_sim_data(self, name):
+    def log_sim_data(self, name = None):
+        if name == None:
+            name = f"log_username_{self.username}"
         log = {}
         log["P"] = self.P
         log["P_num"] = self.P_num
@@ -166,14 +167,14 @@ class Rocket_Chamber():
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
                          time_run = 1e-9,
-                         dt=1e-13,
+                         dt=1e-12,
                          num_part = 1e5,
                          scaled = False)
     t_0 = time.time()
     RC1.run_chamber_mp()
     t_1 = time.time()
     print(t_1 - t_0, "\n \n")
-    RC1.log_sim_data("data_per_box")
+    RC1.log_sim_data()
     #RC1.run_chamber()
     #t_2 = time.time()
     #print(t_2 - t_1)
