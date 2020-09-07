@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from time import time
 from modules import progress
 from ast2000tools import utils
+from ast2000tools import constants as const
 
 class RocketMotor:
     def __init__(self, seed):
@@ -23,8 +24,10 @@ class RocketMotor:
         self.v_0 = self.l_0 / self.t_0
         self.m_0 = 3.3476e-27
         self.e_0 = self.m_0 * self.v_0**2
+        self.T_0 = self.e_0 / const.k_B
 
-    def run_particle_box(self, dt=1e-3, pN=10000, N=1000, temp=12.373, nozzle=0.5, plot_energy=False):
+    def run_particle_box(self, dt=1e-3, pN=100000, N=1000, temp=12.373, nozzle=0.5, plot_energy=False):
+        pN = int(pN)
         dim = 3
         n_esc = 0
         v_esc = 0
@@ -63,9 +66,11 @@ class RocketMotor:
 
         print(f"Calculation time: {time() - t_start}s")
         
+        self.v_esc = v_esc * self.v_0
+        self.n_esc = n_esc
+
         self.f_per_box = np.abs(v_esc * self.m_0 * self.v_0 / self.t_0)
         self.fuel_consumption = n_esc * self.m_0 / self.t_0
 
     def fuel_consumed(sattelite_mass, target_speed):
-
         return self.fuel_consumption * target_speed / (self.f_per_box / mass)
