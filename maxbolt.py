@@ -7,13 +7,13 @@ import ast2000tools.constants as const
 @jit(cache=True, nopython=True)
 def MB_val(sigma, v):
     var1 = (1 / (np.sqrt(2*np.pi)*sigma))
-    var2 = np.exp((-0.5)*((v**2)/(sigma**2)))
+    var2 = np.exp(((-v**2)/(2*(sigma**2))))
     return (var1*var2)
 
 @jit(cache=True, nopython=True)
-def MB_abs_val(sigma, v, T, k, m):
-    var1 = (((m)/2*np.pi*k*T)**(3/2))
-    var2 = np.exp( (-0.5)*((v**2)/(sigma**2)) )
+def MB_abs_val(v, T, k, m):
+    var1 = ((m/(2*np.pi*k*T))**(3/2))
+    var2 = np.exp(-0.5 * (m*(v**2))/(k*T))
     var3 = 4 * np.pi * (v**2)
     return (var1*var2*var3)
 
@@ -39,7 +39,7 @@ class MaxwellBoltzmanDist():
             plt.axvline((vx_high-vx_low), c="k", lw=0.2)
 
         plt.xlabel(r'$v_{x}\ in \ m/s$')
-        plt.ylabel(r'$\% \ of\ particles$')
+        plt.ylabel(r'$number\ of\ particles$')
         plt.xticks(ticks)
 
         plt.savefig('%s.png'%(name))
@@ -56,7 +56,7 @@ class MaxwellBoltzmanDist():
 
     def abs_velocity_dist(self, vx_low, vx_high, mult, name):
         vx = np.linspace(vx_low*mult, vx_high*mult, self.N)
-        MB_x = MB_abs_val(self.sigma, vx, self.T, self.k, self.m)
+        MB_x = MB_abs_val(vx, self.T, self.k, self.m)
 
         ticks = np.arange(vx[0],vx[-1]+1,((abs(vx[0])+abs(vx[-1]))*0.1))
 
@@ -66,7 +66,7 @@ class MaxwellBoltzmanDist():
 
         plt.axvline((vx_high-vx_low), c="k", lw=0.2)
         plt.xlabel(r'$v_{x}\ in \ m/s$')
-        plt.ylabel(r'$\% \ of\ particles$')
+        plt.ylabel(r'$number\ of\ particles$')
         plt.xticks(ticks)
         plt.savefig("%s.png"%(name))
         plt.clf()

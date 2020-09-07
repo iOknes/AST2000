@@ -97,16 +97,7 @@ class Rocket_Chamber():
         self.F = self.m_esc / self.t
         self.F_wall = ((self.v_wall / 3) * self.m) / self.t
         self.P_num = self.F_wall / (self.L**2)
-
-        print(f"N = {self.N:.2e}")
-        print(f"n_p = {self.n_p:.2e}", "\n")
-        print(f"p_esc = {self.p_esc:.2e}", "\n")
-        print(f"v_esc = {self.esc_vel:.2e}", "\n")
-        print(f"v_wall = {self.v_wall:.2e}", "\n")
-        print(f"m_esc = {self.m_esc}", "\n")
-        print(f"F = {self.F:.2e}", "\n")
-        print(f"P_num = {self.P_num:.2e}", "\n")
-        print(f"P = {self.P:.2e}", "\n")
+        self.fuel_used = (self.p_esc / self.t) * self.m
 
     def run_chamber_mp(self):
 
@@ -136,7 +127,10 @@ class Rocket_Chamber():
         self.F = self.m_esc / self.t
         self.F_wall = ((self.v_wall / 3) * self.m) / self.t
         self.P_num = self.F_wall / (self.L**2)
+        self.fuel_used = (self.p_esc / self.t) * self.m
 
+
+    def print_data(self):
         print(f"N = {self.N:.2e}")
         print(f"n_p = {self.n_p:.2e}", "\n")
         print(f"p_esc = {self.p_esc:.2e}", "\n")
@@ -155,7 +149,7 @@ class Rocket_Chamber():
         log = {}
         log["P"] = self.P
         log["P_num"] = self.P_num
-        log["p_esc"] = self.p_esc
+        log["fuel_used"] = self.fuel_used
         log["F"] = self.F
         np.save(name, log)
 
@@ -167,13 +161,13 @@ class Rocket_Chamber():
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
                          time_run = 1e-9,
-                         dt=1e-12,
-                         num_part = 1e5,
+                         dt=1e-13,
+                         num_part = 2e5,
                          scaled = False)
     t_0 = time.time()
     RC1.run_chamber_mp()
     t_1 = time.time()
-    print(t_1 - t_0, "\n \n")
+    print(t_1 - t_0, "\n")
     RC1.log_sim_data()
     #RC1.run_chamber()
     #t_2 = time.time()
