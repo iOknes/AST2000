@@ -4,6 +4,7 @@ from time import time
 from modules import progress
 from ast2000tools import utils
 from ast2000tools import constants as const
+from ast2000tools.solar_system import SolarSystem
 
 class RocketMotor:
     def __init__(self, seed):
@@ -22,9 +23,15 @@ class RocketMotor:
         self.l_0 = 1e-6
         self.t_0 = 1e-9
         self.v_0 = self.l_0 / self.t_0
-        self.m_0 = 3.3476e-27
+        self.m_0 = const.m_H2
         self.e_0 = self.m_0 * self.v_0**2
         self.T_0 = self.e_0 / const.k_B
+
+        #Set up planetary values for launch
+        self.solar_system = SolarSystem(self.seed)
+        self.home_planet_mass = self.solar_system.masses[0] * const.m_sun
+        self.home_planet_radius = self.solar_system.radii[0] * 1e3
+        self.home_planet_escape_velocity = np.sqrt(2 * const.G * self.home_planet_mass / self.home_planet_radius)
 
     def run_particle_box(self, dt=1e-3, pN=100000, N=1000, temp=12.373, nozzle=0.5, plot_energy=False):
         pN = int(pN)
@@ -70,7 +77,13 @@ class RocketMotor:
         self.n_esc = n_esc
 
         self.f_per_box = np.abs(v_esc * self.m_0 * self.v_0 / self.t_0)
+        self.p_per_box = np.abs(v_esc * self.m_0 * self.v_0)
         self.fuel_consumption = n_esc * self.m_0 / self.t_0
 
-    def fuel_consumed(sattelite_mass, target_speed):
-        return self.fuel_consumption * target_speed / (self.f_per_box / mass)
+    @staticmethod
+    def fuel_consumed(initial_mass, target_speed):
+        return self.fuel_consumption * self.thrust / (initial_mass * target_speed)
+
+    def simulate_launch(self, thrust, fuel_consumption=self.fuel_consumption, initial_mass, speed_boost):
+        fuel_mass = initial_mass - 1100
+
