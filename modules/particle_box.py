@@ -50,9 +50,7 @@ def sim_box(pos, vel, L, nozzle, steps, dt):
 
         # turns the velocities of the particles which are outside the box
         turn = ones - (2*part_outside)
-        vel_wall += np.sum(np.abs(part_outside * vel))
-        #vel_wall += np.sum(part_outside_neg * np.abs(vel))
-        #vel_wall += np.sum(part_outside_pos * np.abs(vel))
+        vel_wall += 2*np.sum(np.abs(part_outside * vel))
         vel = vel*turn
 
         # Corrects the positions of the particles which have

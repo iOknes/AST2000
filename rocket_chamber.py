@@ -125,7 +125,7 @@ class Rocket_Chamber():
 
         self.m_esc = self.esc_vel * self.m
         self.F = self.m_esc / self.t
-        self.F_wall = ((self.v_wall / 3) * self.m) / self.t
+        self.F_wall = ((self.v_wall / 6) * self.m) / self.t
         self.P_num = self.F_wall / (self.L**2)
         self.fuel_used = (self.p_esc / self.t) * self.m
 
@@ -169,6 +169,7 @@ if __name__ == "__main__":
     t_1 = time.time()
     print(t_1 - t_0, "\n")
     RC1.log_sim_data()
+    RC1.print_data()
     #RC1.run_chamber()
     #t_2 = time.time()
     #print(t_2 - t_1)
