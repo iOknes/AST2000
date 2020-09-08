@@ -83,12 +83,17 @@ class RocketMotor:
         self.fuel_consumption = n_esc * self.m_0 / self.t_0
 
     @staticmethod
-    def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, n_step=100):
+    def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, dt=1):
+        vel = 0
         mass_wet = initial_mass
-        mass_dry = initial_mass - self.sattelite_mass
-        for i in range(n_step):
-            mass_wet 
-        return fuel_consumption * initial_mass * target_speed / thrust
+        mass_dry = initial_mass - self.space_mission.spacecraft_mass
+        while vel < target_speed:
+            mass_wet -= fuel_consumption * dt
+            if mass_wet > mass_dry:
+                print("Bummer :( We've run out of fuel!")
+                break
+            vel += thrust / mass_wet * dt
+        #return fuel_consumption * initial_mass * target_speed / thrust
 
     def simulate_launch(self, thrust, initial_mass, speed_boost):
         fuel_consumption = self.fuel_consumption
