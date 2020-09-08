@@ -81,9 +81,9 @@ class RocketMotor:
         self.fuel_consumption = n_esc * self.m_0 / self.t_0
 
     @staticmethod
-    def fuel_consumed(initial_mass, target_speed):
-        return self.fuel_consumption * self.thrust / (initial_mass * target_speed)
+    def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, n_step=100):
+        return fuel_consumption * initial_mass * target_speed / thrust
 
-    def simulate_launch(self, thrust, fuel_consumption=self.fuel_consumption, initial_mass, speed_boost):
+    def simulate_launch(self, thrust, initial_mass, speed_boost):
+        fuel_consumption = self.fuel_consumption
         fuel_mass = initial_mass - 1100
-
