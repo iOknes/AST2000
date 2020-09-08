@@ -1,5 +1,11 @@
+"""
+A tiny module for creating a progress bar as a class instance.
+This progress bar has a set number of steps defined at creation and a set length
+in characters. It can be updated only one step at a time, and will rewrite the
+last line at every increment call.
+"""
 class Bar:
-    def __init__(self, steps, width=80):
+    def __init__(self, steps, width=40):
         self.steps = steps
         self.progress = 0
         self.display_progress = 0
