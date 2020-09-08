@@ -5,6 +5,7 @@ from modules import progress
 from ast2000tools import utils
 from ast2000tools import constants as const
 from ast2000tools.solar_system import SolarSystem
+from ast2000tools.space_mission import SpaceMission
 
 class RocketMotor:
     def __init__(self, seed):
@@ -18,6 +19,7 @@ class RocketMotor:
 
         #Seed the random number generator with the seed given as argument    
         np.random.seed(self.seed)
+        self.space_mission = SpaceMission(self.seed)
 
         #Set characteristic units
         self.l_0 = 1e-6
@@ -82,8 +84,16 @@ class RocketMotor:
 
     @staticmethod
     def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, n_step=100):
+        mass_wet = initial_mass
+        mass_dry = initial_mass - self.sattelite_mass
+        for i in range(n_step):
+            mass_wet 
         return fuel_consumption * initial_mass * target_speed / thrust
 
     def simulate_launch(self, thrust, initial_mass, speed_boost):
         fuel_consumption = self.fuel_consumption
         fuel_mass = initial_mass - 1100
+
+if __name__ == "__main__":
+    rm = RocketMotor("ivero")
+    rm.run_particle_box()
