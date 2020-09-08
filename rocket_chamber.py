@@ -161,8 +161,8 @@ class Rocket_Chamber():
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
                          time_run = 1e-9,
-                         dt=1e-13,
-                         num_part = 2e5,
+                         dt=1e-12,
+                         num_part = 1e5,
                          scaled = False)
     t_0 = time.time()
     RC1.run_chamber_mp()
