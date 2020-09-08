@@ -141,7 +141,7 @@ if __name__ == "__main__":
     R = Rocket(log_name = log_name)
     num_box = 6.67e14#1e14
     fuel_mass = 2500 #kg
-    dt = 1e-3
+    dt = 1e-2
     dv = 1000 #R.escape_velocity
 
     #R.Rocket_Boost(R.escape_velocity, num_box, fuel_mass, dt)
