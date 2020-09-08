@@ -86,13 +86,14 @@ class RocketMotor:
     def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, dt=1):
         vel = 0
         mass_wet = initial_mass
-        mass_dry = initial_mass - self.space_mission.spacecraft_mass
+        mass_dry = 1100
         while vel < target_speed:
             mass_wet -= fuel_consumption * dt
-            if mass_wet > mass_dry:
-                print("Bummer :( We've run out of fuel!")
+            if mass_wet < mass_dry:
+                print(f"Bummer :( We've run out of fuel at {vel:.2f}m/s!")
                 break
             vel += thrust / mass_wet * dt
+        return mass_wet - mass_dry
         #return fuel_consumption * initial_mass * target_speed / thrust
 
     def simulate_launch(self, thrust, initial_mass, speed_boost):
@@ -102,3 +103,4 @@ class RocketMotor:
 if __name__ == "__main__":
     rm = RocketMotor("ivero")
     rm.run_particle_box()
+    print(rm.fuel_consumed(6.67e14 * rm.f_per_box, 6.67e14 * rm.fuel_consumption, 3600, 14800))
