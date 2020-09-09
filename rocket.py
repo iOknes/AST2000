@@ -1,13 +1,16 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from numba import jit
 import time
+#import matplotlib.pyplot as plt
+#from numba import jit
 import multiprocessing as mp
+import faulthandler
+import numpy as np
 
 import ast2000tools.constants as const
 import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
+
+from rocket_chamber import Rocket_Chamber
 
 
 class Rocket():
@@ -44,13 +47,6 @@ class Rocket():
         print("\n")
 
 
-        """
-        for var in vars(self.SS):
-            print(var)
-            print(getattr(self.SS, var))
-            print("\n")
-        """
-
     def set_seed(self):
         self.seed = utils.get_seed(self.username)
         np.random.seed(self.seed)
@@ -62,11 +58,13 @@ class Rocket():
             self.log_data.append(key)
             #print(f"{key}: {self.log[key]}")
 
-    def Engine_Performance(self, dv, N, init_fuel_mass, dt, mult = 1.25):
+    def Engine_Performance(self, dv, N, init_fuel_mass, dt, mult_in = 0.25):
         thrust = self.log["F"] * N
         f_s = self.log["fuel_used"] * N
         fuel_mass = init_fuel_mass
         init_mass = self.rocket_mass + fuel_mass
+
+        mult = 1 + mult_in
 
         v = 0
         t = 0
@@ -96,38 +94,63 @@ class Rocket():
         print(f"fuel_burned: {init_fuel_mass-fuel_mass:.2f}")
 
 
+    def Engine_Performance2(self, dv, N, init_fuel_mass, dt, mult_in = 0.25,
+                            accuracy = 1e-2):
 
+        thrust = self.log["F"] * N
+        f_s = self.log["fuel_used"] * N
+        fuel_mass = init_fuel_mass
+        init_mass = self.rocket_mass + fuel_mass
 
+        mult = 1 + mult_in
 
-    def Rocket_Boost(self, delta_v, num_box, fuel_mass, dt):
-        N_tot_mass = self.g*(self.rocket_mass + fuel_mass)
-        print(f"N_tot_mass: {N_tot_mass:.2e}")
-
-        F = self.log["F"] * num_box
-        fuel_per_sec = self.log["fuel_used"] * num_box
         v = 0
         t = 0
+        i = 0
 
-        print(f"F_tot_s: {F:.2e}")
-        print(f"F_up: {F-N_tot_mass:.2e}")
-        print("")
-        print(f"fuel_tot_s: {fuel_per_sec:.2e}")
-        print(f"Esc_Vel: {self.escape_velocity:.2e}")
-        print("")
-        fuel_needed = (F*fuel_per_sec) / ((self.rocket_mass + fuel_mass)*delta_v)
-        print(f"fuel_consumed: {fuel_needed:.2e} \n")
+        while True:
+            while v < dv:
+                v += (thrust / (self.rocket_mass + fuel_mass)) * dt
+                fuel_mass -= f_s * dt
+                t += dt
+                if fuel_mass < 0:
+                    print("Ran out of fuel")
+                    init_fuel_mass *= mult
+                    fuel_mass = init_fuel_mass
+                    break
 
-        while v < self.escape_velocity:
-            fuel_mass -= fuel_per_sec * dt
-            v += (F/ (self.rocket_mass + fuel_mass)) * dt
-            #v -= self.g * dt
-            t += 1 * dt
-            if fuel_mass < 0:
-                print("Ran out of fuel")
+            print(f"v_rem: {dv - v:.2f}, fuel_mass: {fuel_mass:.2f}")
+
+            if np.abs(dv - v ) < accuracy:
+                print("success")
+                break
+
+            #if v > dv:
+            init_fuel_mass /= mult
+            fuel_mass = init_fuel_mass
+            mult_in /= 2
+            #print(mult_in)
+            mult = 1 + mult_in
+
+            i+=1
+            if i > 20:
                 break
 
 
-        print(f"t: {t}, Fuel_left: {fuel_mass:.2f}, v: {v:.2e}, num_boxes: {num_box:.2e}")
+            v = 0
+            t = 0
+
+
+
+        print(f"t: {t}, v: {v:.2e}, v_rem: {dv - v:.2e}")
+        print(f"init_fuel: {init_fuel_mass:.2f}, fuel_left: {fuel_mass:.2f}")
+        print(f"fuel_burned: {init_fuel_mass-fuel_mass:.2f}")
+
+
+    def Sim_Rocket_Launch(self, N, fuel_mass, dt):
+        thrust = self.log["F"] * N
+        f_s = self.log["fuel_used"] * N
+
 
 
 
@@ -136,13 +159,30 @@ class Rocket():
 
 if __name__ == "__main__":
 
-    log_name = "log_username_jrevense"
+    username = "jrevense"
+
+    RC1 = Rocket_Chamber(username = username,
+                         temp = 3e3,
+                         time_run = 1e-9,
+                         dt=1e-13,
+                         num_part = 1e5)
+    t_0 = time.time()
+    RC1.run_chamber_mp()
+    t_1 = time.time()
+    print(t_1 - t_0, "\n")
+    #RC1.print_data()
+
+    id = RC1.id
+    dir = RC1.directory
+    log_name = f"{dir}/log_{username}_{id}"
 
     R = Rocket(log_name = log_name)
     num_box = 6.67e14#1e14
     fuel_mass = 2500 #kg
-    dt = 1e-2
+    dt = 1e-3
     dv = 1000 #R.escape_velocity
 
     #R.Rocket_Boost(R.escape_velocity, num_box, fuel_mass, dt)
-    R.Engine_Performance(dv, num_box, fuel_mass, dt, mult = 1.1)
+    #R.Engine_Performance2(dv, num_box, fuel_mass, dt, mult_in = 0.1)
+    print("\n")
+    R.Engine_Performance(dv, num_box, fuel_mass, dt, mult_in = 0.1)
