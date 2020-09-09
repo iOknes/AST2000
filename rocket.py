@@ -39,12 +39,17 @@ class Rocket():
         self.escape_velocity = np.sqrt((2*self.G*self.planet_mass_kg) /
                                         (self.planet_radius))
 
-        print("\n")
+        self.rotational_period = self.SS.rotational_periods[0] # in days
+        self.rotational_speed = ((self.rotational_period/(24*60*60)) *
+                                  (2*np.pi*self.planet_radius)) # m/s
+
+
+        #print("\n")
         #print(f"m_craft: {self.rocket_mass}")
         print(f"ev: {self.escape_velocity:.2e}")
-        print(f"g: {self.g:.2f}")
-        print(f"N_craft: {self.g*self.rocket_mass:.2e}")
-        print("\n")
+        #print(f"g: {self.g:.2f}")
+        #print(f"N_craft: {self.g*self.rocket_mass:.2e}")
+        #print("\n")
 
 
     def set_seed(self):
@@ -75,12 +80,12 @@ class Rocket():
                 fuel_mass -= f_s * dt
                 t += dt
                 if fuel_mass < 0:
-                    print("Ran out of fuel")
+                    #print("Ran out of fuel")
                     init_fuel_mass *= mult
                     fuel_mass = init_fuel_mass
                     break
 
-            print(f"v_rem: {dv - v:.2f}, fuel_mass: {fuel_mass:.2f}")
+            #print(f"v_rem: {dv - v:.2f}, fuel_mass: {fuel_mass:.2f}")
             if v > dv:
                 print("Success!")
                 break
@@ -94,8 +99,7 @@ class Rocket():
         print(f"fuel_burned: {init_fuel_mass-fuel_mass:.2f}")
 
 
-    def Engine_Performance2(self, dv, N, init_fuel_mass, dt, mult_in = 0.25,
-                            accuracy = 1e-2):
+    def Engine_Performance2(self, dv, N, init_fuel_mass, dt, mult_in = 0.25, accuracy = 1e-2):
 
         thrust = self.log["F"] * N
         f_s = self.log["fuel_used"] * N
@@ -146,10 +150,33 @@ class Rocket():
         print(f"init_fuel: {init_fuel_mass:.2f}, fuel_left: {fuel_mass:.2f}")
         print(f"fuel_burned: {init_fuel_mass-fuel_mass:.2f}")
 
+    def Grav_Acc(self, r):
+        g = (self.G * self.planet_mass_kg) / ((self.planet_radius + r)**2)
+        return g
 
     def Sim_Rocket_Launch(self, N, fuel_mass, dt):
         thrust = self.log["F"] * N
         f_s = self.log["fuel_used"] * N
+
+        r = np.zeros((2))
+        v = np.zeros((2))
+        a = np.zeros((2))
+
+        # r_mag = np.sqrt(np.sum(r**2))
+        v_mag = np.sqrt(np.sum(v**2))
+        # ang_vel v = omega*r
+        # a = thrust / (self.rocket_mass + fuel_mass ) - Grav_Acc(r)
+
+        while v_mag > self.escape_velocity:
+            v_mag += np.ones((2))*100
+
+
+
+
+
+
+
+
 
 
 
@@ -159,30 +186,31 @@ class Rocket():
 
 if __name__ == "__main__":
 
+    #username = "ivero"
     username = "jrevense"
 
     RC1 = Rocket_Chamber(username = username,
                          temp = 3e3,
                          time_run = 1e-9,
-                         dt=1e-13,
-                         num_part = 1e5)
+                         dt=1e-12,
+                         num_part = 1e5,
+                         cache = True)
     t_0 = time.time()
     RC1.run_chamber_mp()
     t_1 = time.time()
-    print(t_1 - t_0, "\n")
+    #print(t_1 - t_0, "\n")
     #RC1.print_data()
 
     id = RC1.id
     dir = RC1.directory
     log_name = f"{dir}/log_{username}_{id}"
 
-    R = Rocket(log_name = log_name)
-    num_box = 6.67e14#1e14
+    R = Rocket(log_name = log_name, username = username)
+    num_box = 5e14#6.67e14#1e14
     fuel_mass = 2500 #kg
     dt = 1e-3
-    dv = 1000 #R.escape_velocity
+    dv = R.escape_velocity
 
-    #R.Rocket_Boost(R.escape_velocity, num_box, fuel_mass, dt)
-    #R.Engine_Performance2(dv, num_box, fuel_mass, dt, mult_in = 0.1)
     print("\n")
-    R.Engine_Performance(dv, num_box, fuel_mass, dt, mult_in = 0.1)
+    #R.Engine_Performance(dv, num_box, fuel_mass, dt, mult_in = 0.01)
+    R.Sim_Rocket_Launch(num_box, fuel_mass, dt)

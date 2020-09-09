@@ -22,10 +22,11 @@ class Rocket_Chamber():
     def __init__(self, temp = 3e3, time_run = 1e-9, dt = 1e-12, L = 1e-6,
                  nozzle = None, num_part = 1e5, particle_mass = const.m_H2,
                  username = "YourUsername", directory = "__cache__",
-                 n_pr = int(mp.cpu_count()-2)):
+                 n_pr = int(mp.cpu_count()-2), cache = True):
 
         self.username = username
         self.directory = directory
+        self.cache = cache
         self.n_pr = n_pr
 
         # Physical Variables
@@ -64,37 +65,31 @@ class Rocket_Chamber():
     def get_id(self):
         id = (self.seed * self.T * self.L * self.m * self.n_p * self.P *
               self.t * self.dt * self.nozzle * self.sigma)
-        id = f"{id:.30e}"
-
+        id = f"{id:.32e}"
         id = "".join(id.split("."))
         self.id = id.split("e")[0]
         #print(self.id)
 
-
-
     def setup_chamber(self):
+        self.set_seed()
         self.sigma = np.sqrt((self.k*self.T) / self.m)
         self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
                                      size = (self.n_p,3))
         self.vel = np.random.normal(loc = 0.0, scale = self.sigma,
                                     size = (self.n_p,3))
 
-
-
-
     def run_chamber(self, print_data = False):
         """
         # DocString
         """
-        if path.exists(f"{self.log_name}.npy"):
-            print("This simulation has already been run")
-            return
+        if self.cache == True:
+            if path.exists(f"{self.log_name}.npy"):
+                print("This simulation has already been run")
+                return
 
         self.p_esc,self.esc_vel,self.v_wall = p_box.sim_box(self.pos, self.vel,
                                                             self.L, self.nozzle,
                                                             self.N, self.dt)
-
-
 
         self.m_esc = self.esc_vel * self.m
         self.F = self.m_esc / self.t
@@ -106,9 +101,10 @@ class Rocket_Chamber():
             self.print_data()
 
     def run_chamber_mp(self, print_data = False):
-        if path.exists(f"{self.log_name}.npy"):
-            print("This simulation has already been run")
-            return
+        if self.cache == True:
+            if path.exists(f"{self.log_name}.npy"):
+                print("This simulation has already been run")
+                return
 
         pool_arguments = []
         pos = np.array_split(self.pos, self.n_pr)
@@ -117,7 +113,6 @@ class Rocket_Chamber():
         for i in range(self.n_pr):
             pool_arguments.append([pos[i],vel[i],self.L, self.nozzle,
                                    self.N, self.dt])
-
 
         pool = mp.Pool(processes=self.n_pr)
         results = pool.starmap(p_box.sim_box, pool_arguments)
@@ -141,7 +136,6 @@ class Rocket_Chamber():
         if print_data == True:
             self.print_data()
 
-
     def print_data(self):
         print(f"N = {self.N:.2e}")
         print(f"n_p = {self.n_p:.2e}", "\n")
@@ -152,8 +146,6 @@ class Rocket_Chamber():
         print(f"F = {self.F:.2e}", "\n")
         print(f"P_num = {self.P_num:.2e}", "\n")
         print(f"P = {self.P:.2e}", "\n")
-
-
 
     def log_sim_data(self):
         if not path.exists(self.directory):
@@ -176,7 +168,8 @@ if __name__ == "__main__":
                          temp = 3e3,
                          time_run = 1e-9,
                          dt=1e-12,
-                         num_part = 1e5)
+                         num_part = 1e5,
+                         cache = True)
     t_0 = time.time()
     RC1.run_chamber_mp(print_data = True)
     t_1 = time.time()
