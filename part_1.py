@@ -34,9 +34,10 @@ class RocketMotor:
         self.solar_system = SolarSystem(self.seed)
         self.home_planet_mass = self.solar_system.masses[0] * const.m_sun
         self.home_planet_radius = self.solar_system.radii[0] * 1e3
-        self.home_planet_escape_velocity = np.sqrt(2 * const.G * self.home_planet_mass / self.home_planet_radius)
+        self.escape_velocity = np.sqrt(2 * const.G * self.home_planet_mass / self.home_planet_radius)
 
-    def run_particle_box(self, dt=1e-3, pN=100000, N=1000, temp=12.373, nozzle=0.5, plot_energy=False):
+    def run_particle_box(self, dt=1e-3, pN=100000, N=1000, temp=12.373,
+    nozzle=0.5, plot_energy=False):
         pN = int(pN)
         dim = 3
         n_esc = 0
@@ -84,7 +85,8 @@ class RocketMotor:
         self.fuel_consumption = n_esc * self.m_0 / self.t_0
 
     @staticmethod
-    def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, dt=1):
+    def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed,
+    mass_dry=1100, dt=1):
         t = 0
         vel = 0
         mass_wet = initial_mass
@@ -107,4 +109,5 @@ if __name__ == "__main__":
     n_box = 5e14
     rm = RocketMotor("ivero")
     rm.run_particle_box()
-    print(rm.fuel_consumed(n_box * rm.f_per_box, n_box * rm.fuel_consumption, 1100 + 20000, rm.home_planet_escape_velocity, dt=1e-1))
+    print(rm.fuel_consumed(n_box * rm.f_per_box, n_box * rm.fuel_consumption,
+    1100 + 12500, rm.escape_velocity, dt=1e-3))
