@@ -145,5 +145,11 @@ if __name__ == "__main__":
     n_box = 5e14
     rm = RocketMotor("ivero")
     rm.run_particle_box()
-    print(rm.fuel_consumed(n_box * rm.f_per_box, n_box * rm.fuel_consumption,
-    1100 + 12500, rm.escape_velocity, dt=1e-3))
+    dfuel = 12.5
+    fuel = 14000
+    consumed_fuel = fuel + 1
+    while consumed_fuel >= fuel:
+        fuel += dfuel
+        consumed_fuel = rm.fuel_consumed(n_box * rm.f_per_box, n_box * rm.fuel_consumption,
+        1100 + fuel, rm.escape_velocity, dt=1e-3)
+    print(consumed_fuel)
