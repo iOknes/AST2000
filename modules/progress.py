@@ -18,7 +18,7 @@ class Bar:
         if self.display_progress < display_progress_update:
             self.display_progress = display_progress_update
             print("\r[" + self.display_progress * '#' + (self.display_steps - self.display_progress) * '.' + ']', end='')
-        if self.progress == self.steps:
+        if self.progress == self.steps - 1:
             print("")
 
     def __call__(self):
@@ -26,7 +26,7 @@ class Bar:
 
 if __name__ == "__main__":
     from time import sleep
-    bar = Bar(100, width=80)
+    bar = Bar(100)
     for i in range(100):
         sleep(1/32)
         bar()

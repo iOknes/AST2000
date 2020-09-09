@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
+import sys
 from modules import progress
 from ast2000tools import utils
 from ast2000tools import constants as const
@@ -84,6 +85,7 @@ class RocketMotor:
 
     @staticmethod
     def fuel_consumed(thrust, fuel_consumption, initial_mass, target_speed, dt=1):
+        t = 0
         vel = 0
         mass_wet = initial_mass
         mass_dry = 1100
@@ -93,14 +95,16 @@ class RocketMotor:
                 print(f"Bummer :( We've run out of fuel at {vel:.2f}m/s!")
                 break
             vel += thrust / mass_wet * dt
-        return mass_wet - mass_dry
-        #return fuel_consumption * initial_mass * target_speed / thrust
+            t += 1
+        print(f"Time spent accelerating: {t * dt}s")
+        return initial_mass - mass_wet
 
     def simulate_launch(self, thrust, initial_mass, speed_boost):
         fuel_consumption = self.fuel_consumption
-        fuel_mass = initial_mass - 1100
+        fuel_mass = initial_mass - mass_dry
 
 if __name__ == "__main__":
+    n_box = 5e14
     rm = RocketMotor("ivero")
     rm.run_particle_box()
-    print(rm.fuel_consumed(6.67e14 * rm.f_per_box, 6.67e14 * rm.fuel_consumption, 3600, 14800))
+    print(rm.fuel_consumed(n_box * rm.f_per_box, n_box * rm.fuel_consumption, 1100 + 20000, rm.home_planet_escape_velocity, dt=1e-1))
