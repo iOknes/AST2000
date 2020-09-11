@@ -15,3 +15,5 @@ Cite the work of great physicist like Kep-Ler, Bol-TZ-mann and such
 Blog name?
 
 Planet names?
+  Find them from SSVIEW/MCAST?
+  
