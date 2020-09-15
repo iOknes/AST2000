@@ -111,6 +111,7 @@ class PlanetOrbits():
         plt.tight_layout()
         #plt.show()
         plt.savefig(f"{self.img_dir}/{filename}.png",dpi=800)
+        plt.close()
 
     def numerical_orbit(self, N, num_rev, filename,
                         make_plot = True, check_pos = True):
@@ -152,6 +153,7 @@ class PlanetOrbits():
             plt.axhline(0, lw=0.5)
             plt.axvline(0, lw=0.5)
             plt.savefig(f"{self.img_dir}/{filename}.png",dpi=800)
+            plt.close()
 
         if (num_rev > 20) and (check_pos == True):
             log_name = f"{self.log_dir}/{filename}.npy"
@@ -161,7 +163,8 @@ class PlanetOrbits():
 
 
     def solar_orbit_numerical(self, N, num_rev, filename,
-                              make_plot = True, log_pos = True,
+                              make_plot = True, show_plot = True,
+                              log_pos = True,
                               planet_ind = None):
         if planet_ind == None:
             # Reverts to heaviest planet if none specified
@@ -214,6 +217,9 @@ class PlanetOrbits():
             plt.axvline(0,lw=0.25)
             plt.axis("equal")
             plt.savefig(img_name, dpi=800)
+            if show_plot == True:
+                plt.show()
+            plt.close()
 
         if log_pos == True:
             log_name = f"{self.log_dir}/{filename}_{len(planet_ind)}planets.npy"
@@ -236,9 +242,11 @@ if __name__ == "__main__":
     N_solar = int(1e4)
     rev_solar = 5
 
+    plots = False
+
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
-    #SolSys.SS.print_info()
+    SolSys.SS.print_info()
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
@@ -246,10 +254,12 @@ if __name__ == "__main__":
     # Ran with heaviest planet
     SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev,
                              filename = "solar_numerical",
-                             make_plot = True, log_pos = True,
+                             make_plot = True, show_plot = plots,
+                             log_pos = True,
                              planet_ind = [2])
     # Run with 2 heaviest planets + home planet
     SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev,
                              filename = "solar_numerical",
-                             make_plot = True, log_pos = True,
+                             make_plot = True, show_plot = plots,
+                             log_pos = True,
                              planet_ind = [0,2,6])
