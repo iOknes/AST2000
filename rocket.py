@@ -64,6 +64,9 @@ class Rocket():
             self.log_data.append(key)
             #print(f"{key}: {self.log[key]}")
 
+    def m_to_AU(self, m):
+        return (m*(6.68458712e-12))
+
     def Engine_Performance(self, dv, N, init_fuel_mass, dt, mult_in = 0.25):
         thrust = self.log["F"] * N
         f_s = self.log["fuel_used"] * N
@@ -163,12 +166,15 @@ class Rocket():
         thrust = self.log["F"] * N
         f_s = self.log["fuel_used"] * N
         omega = self.omega
+        self.init_fuel_mass = fuel_mass
 
         r = np.zeros((2))
         r[0] = self.planet_radius
         v = np.zeros((2))
         v_omega = np.zeros((2))
         a = np.zeros((2))
+
+        self.r_0 = r
 
         r_mag = np.sqrt(np.sum(r**2))
         v_mag = np.sqrt(np.sum(v**2))
@@ -225,8 +231,35 @@ class Rocket():
         """
         print(f"v: {v_mag:.2e}")
         print(f"v_rem: {self.escape_velocity-v_mag:.2e}")
+        print(f"v: {v}")
         print(f"t: {t}")
         print(f"fuel_left: {fuel_mass}")
+        self.r = r
+        self.v = v
+        self.thrust = thrust
+        self.f_s = f_s
+        self.launch_time = t
+        self.dt = dt * 1e-1
+        #print(f"r_0: {self.r_0}")
+        #print(f"r: {self.r}")
+
+    def solar_ref_frame(self):
+        home_planet_r = self.SS.initial_positions[:,0]
+        self.r_0_solar = home_planet_r + self.m_to_AU(self.r_0)
+        self.r_solar = home_planet_r + self.m_to_AU(self.r)
+
+
+    def check_parameters(self, TOL):
+        self.solar_ref_frame()
+        self.SM.set_launch_parameters(thrust = self.thrust,
+                                      mass_loss_rate = self.f_s,
+                                      initial_fuel_mass = self.init_fuel_mass,
+                                      estimated_launch_duration = self.launch_time,
+                                      launch_position = self.r_0_solar,
+                                      time_of_launch = TOL)
+
+        self.SM.launch_rocket(time_step = self.dt)
+        self.SM.verify_launch_result(position_after_launch = self.r)
 
 
 if __name__ == "__main__":
@@ -237,7 +270,7 @@ if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = username,
                          temp = 3e3,
                          time_run = 1e-9,
-                         dt=1e-14,
+                         dt=1e-12,
                          num_part = 1e5,
                          cache = True)
 
@@ -257,3 +290,4 @@ if __name__ == "__main__":
     print("\n")
     #R.Engine_Performance(dv, num_box, fuel_mass, dt, mult_in = 0.01)
     R.Sim_Rocket_Launch(num_box, fuel_mass, dt)
+    R.check_parameters(TOL = 0)
