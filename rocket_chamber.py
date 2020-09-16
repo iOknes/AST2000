@@ -15,6 +15,11 @@ from ast2000tools.solar_system import SolarSystem
 
 from modules import particle_box as p_box
 
+"""
+If you're going to run this code, make sure that
+particle_box.py is in a subdirectory called "modules"
+"""
+
 faulthandler.enable()
 
 class Rocket_Chamber():
