@@ -39,10 +39,10 @@ class MaxwellBoltzmanDist():
             plt.axvline((vx_high-vx_low), c="k", lw=0.2)
 
         plt.xlabel(r'$v_{x}\ in \ m/s$')
-        plt.ylabel(r'$number\ of\ particles$')
+        plt.ylabel(r'$share\ of\ particles$')
         plt.xticks(ticks)
 
-        plt.savefig('%s.png'%(name))
+        plt.savefig('plots/%s.png'%(name))
         #plt.show()
         plt.clf()
 
@@ -61,21 +61,21 @@ class MaxwellBoltzmanDist():
         ticks = np.arange(vx[0],vx[-1]+1,((abs(vx[0])+abs(vx[-1]))*0.1))
 
         plt.figure(1, figsize=(9,5))
-        plt.title('Velocity Distribution $ v_{x} $')
+        plt.title('Velocity Distribution $ v $')
         plt.plot(vx, MB_x, 'k')
 
         plt.axvline((vx_high-vx_low), c="k", lw=0.2)
-        plt.xlabel(r'$v_{x}\ in \ m/s$')
-        plt.ylabel(r'$number\ of\ particles$')
+        plt.xlabel(r'$v\ in \ m/s$')
+        plt.ylabel(r'$share\ of\ particles$')
         plt.xticks(ticks)
-        plt.savefig("%s.png"%(name))
+        plt.savefig("plots/%s.png"%(name))
         plt.clf()
 
 
 
 A = MaxwellBoltzmanDist()
-A.velocity_dist(-2.5, 2.5, 1e4, 'test1')
-A.velocity_dist(5, 30, 1e3, 'test2', inc_mid = False)
-A.abs_velocity_dist(0, 3, 1e4, 'test3')
+A.velocity_dist(-2.5, 2.5, 1e4, '2.1')
+A.velocity_dist(5, 30, 1e3, '2.2', inc_mid = False)
+A.abs_velocity_dist(0, 3, 1e4, '2.3')
 S_sum, SN = A.integ_vel_dist(5, 30, 1e3)
 print(S_sum, SN)

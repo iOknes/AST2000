@@ -1,8 +1,13 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from numba import jit
+# Egen kode
+
 import time
 import multiprocessing as mp
+import faulthandler
+import numpy as np
+
+#import os.path
+from os import path
+from os import makedirs
 
 import ast2000tools.constants as const
 import ast2000tools.utils as utils
@@ -10,16 +15,18 @@ from ast2000tools.solar_system import SolarSystem
 
 from modules import particle_box as p_box
 
-import faulthandler; faulthandler.enable()
+faulthandler.enable()
 
 class Rocket_Chamber():
 
     def __init__(self, temp = 3e3, time_run = 1e-9, dt = 1e-12, L = 1e-6,
                  nozzle = None, num_part = 1e5, particle_mass = const.m_H2,
-                 username = "YourUsername", scaled = True,
-                 n_pr = int(mp.cpu_count()-2)):
+                 username = "YourUsername", directory = "__cache__",
+                 n_pr = int(mp.cpu_count()-2), cache = True):
 
         self.username = username
+        self.directory = directory
+        self.cache = cache
         self.n_pr = n_pr
 
         # Physical Variables
@@ -45,61 +52,59 @@ class Rocket_Chamber():
 
         # Initialisation functions
         self.set_seed()
+        self.setup_chamber()
+        self.get_id()
 
-        self.scaled = scaled
-        if self.scaled == True:
-            self.setup_chamber_scaled()
-        else:
-            self.setup_chamber()
+        self.log_name = f"{self.directory}/log_{self.username}_{self.id}"
+
 
     def set_seed(self):
         self.seed = utils.get_seed(self.username)
         np.random.seed(self.seed)
 
-    def setup_chamber_scaled(self):
-        self.k_m = 1
-        self.m_m = 1
-        #self.L = 1 / self.l
-        self.T_0 = (self.m * (self.L**2)) / (self.k * (self.t**2)) * self.k_m
-        self.T_m = self.T / self.T_0
-        self.sigma_m = np.sqrt((self.k_m*self.T_m) / self.m_m)
-        #self.L = 1 #/ self.l
-
-        print(self.sigma_m)
-        print(self.L)
-        self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
-                                     size = (self.n_p, 3))
-        self.vel = np.random.normal(loc = 0.0, scale = self.sigma_m,
-                                    size = (self.n_p, 3))
+    def get_id(self):
+        id = (self.seed * self.T * self.L * self.m * self.n_p * self.P *
+              self.t * self.dt * self.nozzle * self.sigma)
+        id = f"{id:.32e}"
+        id = "".join(id.split("."))
+        self.id = id.split("e")[0]
+        #print(self.id)
 
     def setup_chamber(self):
+        self.set_seed()
         self.sigma = np.sqrt((self.k*self.T) / self.m)
         self.pos = np.random.uniform(low = (-self.L/2), high = (self.L/2),
                                      size = (self.n_p,3))
         self.vel = np.random.normal(loc = 0.0, scale = self.sigma,
                                     size = (self.n_p,3))
 
-
-
-
-    def run_chamber(self):
+    def run_chamber(self, print_data = False):
         """
         # DocString
         """
+        if self.cache == True:
+            if path.exists(f"{self.log_name}.npy"):
+                print("This simulation has already been run")
+                return
 
         self.p_esc,self.esc_vel,self.v_wall = p_box.sim_box(self.pos, self.vel,
                                                             self.L, self.nozzle,
                                                             self.N, self.dt)
-
-
 
         self.m_esc = self.esc_vel * self.m
         self.F = self.m_esc / self.t
         self.F_wall = ((self.v_wall / 3) * self.m) / self.t
         self.P_num = self.F_wall / (self.L**2)
         self.fuel_used = (self.p_esc / self.t) * self.m
+        self.log_sim_data()
+        if print_data == True:
+            self.print_data()
 
-    def run_chamber_mp(self):
+    def run_chamber_mp(self, print_data = False):
+        if self.cache == True:
+            if path.exists(f"{self.log_name}.npy"):
+                print("This simulation has already been run")
+                return
 
         pool_arguments = []
         pos = np.array_split(self.pos, self.n_pr)
@@ -108,7 +113,6 @@ class Rocket_Chamber():
         for i in range(self.n_pr):
             pool_arguments.append([pos[i],vel[i],self.L, self.nozzle,
                                    self.N, self.dt])
-
 
         pool = mp.Pool(processes=self.n_pr)
         results = pool.starmap(p_box.sim_box, pool_arguments)
@@ -128,7 +132,9 @@ class Rocket_Chamber():
         self.F_wall = ((self.v_wall / 6) * self.m) / self.t
         self.P_num = self.F_wall / (self.L**2)
         self.fuel_used = (self.p_esc / self.t) * self.m
-
+        self.log_sim_data()
+        if print_data == True:
+            self.print_data()
 
     def print_data(self):
         print(f"N = {self.N:.2e}")
@@ -141,17 +147,16 @@ class Rocket_Chamber():
         print(f"P_num = {self.P_num:.2e}", "\n")
         print(f"P = {self.P:.2e}", "\n")
 
+    def log_sim_data(self):
+        if not path.exists(self.directory):
+            makedirs(self.directory)
 
-
-    def log_sim_data(self, name = None):
-        if name == None:
-            name = f"log_username_{self.username}"
         log = {}
         log["P"] = self.P
         log["P_num"] = self.P_num
         log["fuel_used"] = self.fuel_used
         log["F"] = self.F
-        np.save(name, log)
+        np.save(self.log_name, log)
 
 
 
@@ -160,16 +165,12 @@ class Rocket_Chamber():
 
 if __name__ == "__main__":
     RC1 = Rocket_Chamber(username = "jrevense",
+                         temp = 3e3,
                          time_run = 1e-9,
                          dt=1e-12,
                          num_part = 1e5,
-                         scaled = False)
+                         cache = True)
     t_0 = time.time()
-    RC1.run_chamber_mp()
+    RC1.run_chamber_mp(print_data = True)
     t_1 = time.time()
     print(t_1 - t_0, "\n")
-    RC1.log_sim_data()
-    RC1.print_data()
-    #RC1.run_chamber()
-    #t_2 = time.time()
-    #print(t_2 - t_1)

@@ -27,9 +27,12 @@ if __name__=="__main__":
     sig = 1
     mu = 0
 
-    a = integrate_probability(normal_gaussian, -1*sig, 1*sig, int(1e5), mu, sig)
-    b = integrate_probability(normal_gaussian, -2*sig, 2*sig, int(1e5), mu, sig)
-    c = integrate_probability(normal_gaussian, -3*sig, 3*sig, int(1e5), mu, sig)
+    a = integrate_probability(normal_gaussian,
+                              -1*sig, 1*sig, int(1e5), mu, sig)
+    b = integrate_probability(normal_gaussian,
+                              -2*sig, 2*sig, int(1e5), mu, sig)
+    c = integrate_probability(normal_gaussian,
+                              -3*sig, 3*sig, int(1e5), mu, sig)
 
     print(a)
     print(b)
@@ -38,7 +41,20 @@ if __name__=="__main__":
     a1 = P(normal_gaussian, -1*sig, 1*sig, int(1e5), mu, sig)
     b1 = P(normal_gaussian, -2*sig, 2*sig, int(1e5), mu, sig)
     c1 = P(normal_gaussian, -3*sig, 3*sig, int(1e5), mu, sig)
+    print("\n")
 
     print(a1)
     print(b1)
     print(c1)
+
+    """
+    python statistics.py
+    0.682689492120965
+    0.9544997360748356
+    0.997300203928758
+
+
+    0.682694331585032
+    0.9545018957367678
+    0.9973004698459154
+    """
