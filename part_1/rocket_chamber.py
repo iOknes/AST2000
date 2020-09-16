@@ -13,12 +13,7 @@ import ast2000tools.constants as const
 import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 
-from modules import particle_box as p_box
-
-"""
-If you're going to run this code, make sure that
-particle_box.py is in a subdirectory called "modules"
-"""
+from particle_box import sim_box
 
 faulthandler.enable()
 
@@ -92,9 +87,9 @@ class Rocket_Chamber():
                 print("This simulation has already been run")
                 return
 
-        self.p_esc,self.esc_vel,self.v_wall = p_box.sim_box(self.pos, self.vel,
-                                                            self.L, self.nozzle,
-                                                            self.N, self.dt)
+        self.p_esc,self.esc_vel,self.v_wall = sim_box(self.pos, self.vel,
+                                                      self.L, self.nozzle,
+                                                      self.N, self.dt)
 
         self.m_esc = self.esc_vel * self.m
         self.F = self.m_esc / self.t
@@ -120,7 +115,7 @@ class Rocket_Chamber():
                                    self.N, self.dt])
 
         pool = mp.Pool(processes=self.n_pr)
-        results = pool.starmap(p_box.sim_box, pool_arguments)
+        results = pool.starmap(sim_box, pool_arguments)
         pool.terminate()
 
         self.p_esc = 0

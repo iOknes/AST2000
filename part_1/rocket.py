@@ -194,7 +194,7 @@ class Rocket():
             print("Not enough thrust")
             return
 
-        while v_mag < self.escape_velocity*1.01:
+        while v_mag < self.escape_velocity:
             #r_log.append(r)
             r_mag = np.sqrt(np.sum(r**2))
             u_r = (r / r_mag)
