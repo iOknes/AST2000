@@ -290,7 +290,7 @@ if __name__ == "__main__":
 
     R = Rocket(log_name = log_name, username = username)
     num_box = 5e14#6.67e14#1e14
-    fuel_mass = 30000 #kg
+    fuel_mass = 45000 #kg
     dt = 1e-3
     dv = R.escape_velocity
 
