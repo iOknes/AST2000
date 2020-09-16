@@ -1,6 +1,6 @@
+# Egen kode
+
 import time
-#import matplotlib.pyplot as plt
-#from numba import jit
 import multiprocessing as mp
 import faulthandler
 import numpy as np

@@ -1,3 +1,5 @@
+# Egen kode
+
 import time
 import matplotlib.pyplot as plt
 #from numba import jit
@@ -192,7 +194,7 @@ class Rocket():
             print("Not enough thrust")
             return
 
-        while v_mag < self.escape_velocity:
+        while v_mag < self.escape_velocity*1.01:
             #r_log.append(r)
             r_mag = np.sqrt(np.sum(r**2))
             u_r = (r / r_mag)
@@ -229,6 +231,7 @@ class Rocket():
         plt.plot(r_log[:,0], r_log[:,1], marker = "*")
         plt.show()
         """
+        print(f"F: {thrust}")
         print(f"v: {v_mag:.2e}")
         print(f"v_rem: {self.escape_velocity-v_mag:.2e}")
         print(f"v: {v}")
@@ -260,6 +263,10 @@ class Rocket():
 
         self.SM.launch_rocket(time_step = self.dt)
         self.SM.verify_launch_result(position_after_launch = self.r)
+        """
+        Per nå får vi ikke verifisert vår launch, vi kommer tilbake til dette
+        når vi får tid
+        """
 
 
 if __name__ == "__main__":
@@ -283,7 +290,7 @@ if __name__ == "__main__":
 
     R = Rocket(log_name = log_name, username = username)
     num_box = 5e14#6.67e14#1e14
-    fuel_mass = 25000 #kg
+    fuel_mass = 30000 #kg
     dt = 1e-3
     dv = R.escape_velocity
 

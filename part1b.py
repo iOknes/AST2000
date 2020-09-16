@@ -69,7 +69,7 @@ class PlanetOrbits():
     def get_analytical_pos(self, theta):
         n_p = int(self.system_data["num_planets"])
         p = (self.system_data["semi_major_axes"] *
-            (1.0 - self.system_data["eccentricities"]))
+            (1.0 - self.system_data["eccentricities"]**2))
         r = np.zeros((len(theta),n_p))
         for i in range(len(r)):
             r[i] = (p/(1.0 + self.system_data["eccentricities"]*
@@ -208,15 +208,18 @@ class PlanetOrbits():
                                                  masses)
 
         if make_plot == True:
-            img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}planets.png"
+            img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}planets"
             plt.figure(figsize=(9,7))
-            for i in range(len(planet_ind)):
-                plt.plot(pos_p[0,i,:], pos_p[1,i,:])
             plt.plot(pos_sun[0,:], pos_sun[1,:])
             plt.axhline(0,lw=0.25)
             plt.axvline(0,lw=0.25)
             plt.axis("equal")
-            plt.savefig(img_name, dpi=800)
+            plt.savefig(f"{img_name}_solar.png", dpi=1200)
+
+            for i in range(len(planet_ind)):
+                plt.plot(pos_p[0,i,:], pos_p[1,i,:])
+
+            plt.savefig(f"{img_name}.png", dpi=1200)
             if show_plot == True:
                 plt.show()
             plt.close()
@@ -242,17 +245,17 @@ if __name__ == "__main__":
     N_solar = int(1e4)
     rev_solar = 5
 
-    plots = False
+    plots = True
 
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-    SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
+    #SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
-    SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
-                          make_plot = True, check_pos = True)
+    #SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
+    #                       make_plot = True, check_pos = True)
     # Ran with heaviest planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev,
+    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
                              make_plot = True, show_plot = plots,
                              log_pos = True,
