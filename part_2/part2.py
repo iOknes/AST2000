@@ -13,7 +13,8 @@ import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
 
-from modules import orbit_module as o_m
+from orbit_module import calc_orbit_KD, check_tot_energy
+from orbit_module import calc_solar_orbit_KD, calc_solar_orbit_KD_EN
 
 
 class PlanetOrbits():
@@ -26,6 +27,10 @@ class PlanetOrbits():
         self.log_name = log_name
         self.log_dir = log_dir
         self.img_dir = img_dir
+        if not path.exists(self.img_dir):
+            makedirs(self.img_dir)
+        if not path.exists(self.log_dir):
+            makedirs(self.log_dir)
 
         self.G = const.G_sol
 
@@ -85,8 +90,6 @@ class PlanetOrbits():
         return e_x, e_y
 
     def analytical_orbit(self, plot_size, filename):
-        if not path.exists(self.img_dir):
-            makedirs(self.img_dir)
         width, height = plot_size
 
         theta = np.linspace(0, (2*np.pi), int(1e5))
@@ -138,9 +141,9 @@ class PlanetOrbits():
         pos[0,:,0], pos[1,:,0] = x0, y0
         vel[0], vel[1] = vx0, vy0
 
-        pos = o_m.calc_orbit_KD(pos, vel, self.G, N_in, dt,
-                                self.system_data["star_mass"],
-                                self.system_data["masses"])
+        pos = calc_orbit_KD(pos, vel, self.G, N_in, dt,
+                            self.system_data["star_mass"],
+                            self.system_data["masses"])
 
         if make_plot == True:
             plt.figure(figsize = (9,7))
@@ -164,8 +167,8 @@ class PlanetOrbits():
 
     def solar_orbit_numerical(self, N, num_rev, filename,
                               make_plot = True, show_plot = True,
-                              log_pos = True,
-                              planet_ind = None):
+                              log_pos = True, planet_ind = None,
+                              check_energy = True, tol = 1e-3):
         if planet_ind == None:
             # Reverts to heaviest planet if none specified
             masses = self.system_data["masses"]
@@ -175,7 +178,7 @@ class PlanetOrbits():
             masses = np.zeros((len(planet_ind)))
             for i in range(len(planet_ind)):
                 masses[i] = self.system_data["masses"][planet_ind[i]]
-
+        sun_mass = self.system_data["star_mass"]
         CPOT= np.sqrt((1.0 / (self.system_data["star_mass"] +
                        self.system_data["masses"][planet_ind[0]]))*
                       (self.system_data["semi_major_axes"][planet_ind[0]]**3))
@@ -202,9 +205,30 @@ class PlanetOrbits():
             vel[1,i] = (self.system_data["initial_velocities"]
                                         [1][planet_ind[i]])
 
-        pos_p, pos_sun = o_m.calc_solar_orbit_KD(pos, vel, pos_sun, vel_sun,
-                                                 self.G, N_in, dt,
-                                                 self.system_data["star_mass"],
+        if check_energy == True:
+            pos_p, pos_sun, tot_energies = calc_solar_orbit_KD_EN(pos, vel,
+                                                                  pos_sun,
+                                                                  vel_sun,
+                                                                  self.G,
+                                                                  N_in, dt,
+                                                                  sun_mass,
+                                                                  masses)
+            plt.figure(figsize=(9,7))
+            img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}"
+            img_name += "_energy_planets"
+            for j in range(len(planet_ind)):
+                ind = int(N*.1)
+                tot_en = tot_energies[0,j,:] + tot_energies[1,j,:]
+                lab = f"Planet {planet_ind[j]} and sun"
+                plt.plot(t[1:], tot_en, lw=0.5, label=lab)
+            plt.legend()
+            plt.xlabel("Time, t")
+            plt.ylabel("Energy, E")
+            plt.savefig(f"{img_name}_solar.png", dpi=1200)
+            plt.close()
+        else:
+            pos_p, pos_sun = calc_solar_orbit_KD(pos, vel, pos_sun, vel_sun,
+                                                 self.G, N_in, dt, sun_mass,
                                                  masses)
 
         if make_plot == True:
@@ -232,6 +256,7 @@ class PlanetOrbits():
             np.save(log_name, positions)
 
 
+
 if __name__ == "__main__":
 
     username = "ivero"
@@ -242,27 +267,28 @@ if __name__ == "__main__":
 
     N = int(1e5)
     rev = 21
-    N_solar = int(1e4)
+    N_solar = int(5e4)
     rev_solar = 5
 
-    plots = True
+    plots = False
+    save_plots = True
 
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-    #SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
+    SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
-    #SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
-    #                       make_plot = True, check_pos = True)
+    SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
+                           make_plot = True, check_pos = True)
     # Ran with heaviest planet
     SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
-                             make_plot = True, show_plot = plots,
+                             make_plot = save_plots, show_plot = plots,
                              log_pos = True,
                              planet_ind = [2])
     # Run with 2 heaviest planets + home planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev,
+    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
-                             make_plot = True, show_plot = plots,
+                             make_plot = save_plots, show_plot = plots,
                              log_pos = True,
-                             planet_ind = [0,2,6])
+                             planet_ind = [2,0,6])
