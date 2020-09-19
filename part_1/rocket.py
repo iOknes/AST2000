@@ -206,7 +206,7 @@ class Rocket():
             v_omega[0] = -omega*r[1]
             v_omega[1] = omega*r[0]
             v_tot = v + v_omega
-            v_mag = np.sqrt(np.sum(v**2))
+            v_mag = np.sqrt(np.sum(v_tot**2))
 
             r = r + (v_tot)*dt + (0.5 * a * (dt**2))
             t += dt
