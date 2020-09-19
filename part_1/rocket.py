@@ -194,7 +194,7 @@ class Rocket():
             print("Not enough thrust")
             return
 
-        while v_mag < self.escape_velocity*1.01:
+        while v_mag < self.escape_velocity:
             #r_log.append(r)
             r_mag = np.sqrt(np.sum(r**2))
             u_r = (r / r_mag)
@@ -290,7 +290,7 @@ if __name__ == "__main__":
 
     R = Rocket(log_name = log_name, username = username)
     num_box = 5e14#6.67e14#1e14
-    fuel_mass = 30000 #kg
+    fuel_mass = 45000 #kg
     dt = 1e-3
     dv = R.escape_velocity
 
