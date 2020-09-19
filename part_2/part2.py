@@ -266,19 +266,49 @@ class PlanetOrbits():
             velocities["time"] = t
             np.save(log_name, velocities)
 
-    def load_log_vel(self, filename, num_plan):
-        log_name = f"{self.log_dir}/{filename}_{num_plan}_vel_sun.npy"
-        vel_sun = np.load(f"{log_name}", allow_pickle = True).item()
+    def load_logs(self, filename, num_plan):
+        log_name_vel = f"{self.log_dir}/{filename}_{num_plan}_vel_sun.npy"
+        vel_sun = np.load(f"{log_name_vel}", allow_pickle = True).item()
         self.vel_sun = vel_sun["vel_sun"]
         self.t = vel_sun["time"]
+        log_name_pos = f"{self.log_dir}/{filename}_{num_plan}planets.npy"
+        positions = np.load(f"{log_name_pos}", allow_pickle = True).item()
+        self.pos_s = positions["sun_positions"]
+
 
     def plot_radial_vel(self, filename, num_plan):
-        self.load_log_vel(filename, num_plan)
+        self.load_logs(filename, num_plan)
 
-        plt.figure(figsize=(9,7))
+        vel_s = np.sqrt(self.vel_sun[0,:]**2 + self.vel_sun[1,:]**2)
+        r_s = np.sqrt(self.pos_s[0,:]**2 + self.pos_s[1,:]**2)
+        theta = np.zeros((len(vel_s)))
+        for i in range(len(vel_s)):
+            if self.pos_s[1,i] > 0:
+                theta[i] = np.arccos(self.pos_s[0,i] / r_s[i])
+            elif self.pos_s[1,i] < 0:
+                theta[i] = -np.arccos(self.pos_s[0,i] / r_s[i])
+
+        omega = (vel_s * np.sin(theta)) / r_s
+
+
+
+        plt.figure(1, figsize=(9,7))
         plt.plot(self.t, self.vel_sun[0,:])
         plt.plot(self.t, self.vel_sun[1,:])
+
+        plt.figure(2, figsize=(9,7))
+        plt.plot(self.t, omega)
+
+        plt.figure(3, figsize=(9,7))
+        plt.plot(self.t, self.pos_s[0,:])
+        plt.plot(self.t, self.pos_s[1,:])
+
+
         plt.show()
+
+        plt.close()
+
+
 
 
 
@@ -303,7 +333,7 @@ if __name__ == "__main__":
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-    SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
+    #SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     #SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
     #                       make_plot = True, check_pos = True)
