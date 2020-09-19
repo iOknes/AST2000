@@ -78,7 +78,7 @@ class PlanetOrbits():
         r = np.zeros((len(theta),n_p))
         for i in range(len(r)):
             r[i] = (p/(1.0 + self.system_data["eccentricities"]*
-                    np.cos(theta[i]-self.system_data["initial_orbital_angles"])))
+                    np.cos(theta[i]+self.system_data["initial_orbital_angles"])))
         e_x = np.zeros((len(theta),n_p))
         e_y = np.zeros((len(theta),n_p))
         ur = np.array([np.cos(theta), np.sin(theta)])
@@ -168,7 +168,8 @@ class PlanetOrbits():
     def solar_orbit_numerical(self, N, num_rev, filename,
                               make_plot = True, show_plot = True,
                               log_pos = True, planet_ind = None,
-                              check_energy = True, tol = 1e-3):
+                              check_energy = True, log_s_vel = True,
+                              tol = 1e-3):
         if planet_ind == None:
             # Reverts to heaviest planet if none specified
             masses = self.system_data["masses"]
@@ -206,30 +207,32 @@ class PlanetOrbits():
                                         [1][planet_ind[i]])
 
         if check_energy == True:
-            pos_p, pos_sun, tot_energies = calc_solar_orbit_KD_EN(pos, vel,
-                                                                  pos_sun,
-                                                                  vel_sun,
-                                                                  self.G,
-                                                                  N_in, dt,
-                                                                  sun_mass,
-                                                                  masses)
-            plt.figure(figsize=(9,7))
-            img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}"
-            img_name += "_energy_planets"
-            for j in range(len(planet_ind)):
-                ind = int(N*.1)
-                tot_en = tot_energies[0,j,:] + tot_energies[1,j,:]
-                lab = f"Planet {planet_ind[j]} and sun"
-                plt.plot(t[1:], tot_en, lw=0.5, label=lab)
-            plt.legend()
-            plt.xlabel("Time, t")
-            plt.ylabel("Energy, E")
-            plt.savefig(f"{img_name}_solar.png", dpi=1200)
-            plt.close()
+            pos_p,pos_sun,tot_energies,v_sun = calc_solar_orbit_KD_EN(pos,
+                                                                      vel,
+                                                                      pos_sun,
+                                                                      vel_sun,
+                                                                      self.G,
+                                                                      N_in, dt,
+                                                                      sun_mass,
+                                                                      masses)
+            if make_plot == True:
+                plt.figure(figsize=(9,7))
+                img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}"
+                img_name += "_energy_planets"
+                for j in range(len(planet_ind)):
+                    ind = int(N*.1)
+                    tot_en = tot_energies[0,j,:] + tot_energies[1,j,:]
+                    lab = f"Planet {planet_ind[j]} and sun"
+                    plt.plot(t[1:], tot_en, lw=0.5, label=lab)
+                plt.legend()
+                plt.xlabel("Time, t")
+                plt.ylabel("Energy, E")
+                plt.savefig(f"{img_name}_solar.png", dpi=1200)
+                plt.close()
         else:
-            pos_p, pos_sun = calc_solar_orbit_KD(pos, vel, pos_sun, vel_sun,
-                                                 self.G, N_in, dt, sun_mass,
-                                                 masses)
+            pos_p, pos_sun, vel_sun = calc_solar_orbit_KD(pos, vel, pos_sun,
+                                                          vel_sun, self.G, N_in,
+                                                          dt, sun_mass, masses)
 
         if make_plot == True:
             img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}planets"
@@ -253,7 +256,31 @@ class PlanetOrbits():
             positions = {}
             positions["planet_positions"] = pos_p
             positions["sun_positions"] = pos_sun
+            positions["time"] = t
             np.save(log_name, positions)
+
+        if log_s_vel == True:
+            log_name = f"{self.log_dir}/{filename}_{len(planet_ind)}_vel_sun.npy"
+            velocities = {}
+            velocities["vel_sun"] = v_sun
+            velocities["time"] = t
+            np.save(log_name, velocities)
+
+    def load_log_vel(self, filename, num_plan):
+        log_name = f"{self.log_dir}/{filename}_{num_plan}_vel_sun.npy"
+        vel_sun = np.load(f"{log_name}", allow_pickle = True).item()
+        self.vel_sun = vel_sun["vel_sun"]
+        self.t = vel_sun["time"]
+
+    def plot_radial_vel(self, filename, num_plan):
+        self.load_log_vel(filename, num_plan)
+
+        plt.figure(figsize=(9,7))
+        plt.plot(self.t, self.vel_sun[0,:])
+        plt.plot(self.t, self.vel_sun[1,:])
+        plt.show()
+
+
 
 
 
@@ -271,24 +298,25 @@ if __name__ == "__main__":
     rev_solar = 5
 
     plots = False
-    save_plots = True
+    save_plots = False
 
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
-    SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
-                           make_plot = True, check_pos = True)
+    #SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
+    #                       make_plot = True, check_pos = True)
     # Ran with heaviest planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
+    """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
                              make_plot = save_plots, show_plot = plots,
-                             log_pos = True,
-                             planet_ind = [2])
+                             log_pos = True, log_s_vel = True,
+                             planet_ind = [2])"""
+    SolSys.plot_radial_vel(filename = "solar_numerical", num_plan = 1)
     # Run with 2 heaviest planets + home planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
+    """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
                              make_plot = save_plots, show_plot = plots,
-                             log_pos = True,
-                             planet_ind = [2,0,6])
+                             log_pos = True, log_s_vel = True,
+                             planet_ind = [2,0,6])"""

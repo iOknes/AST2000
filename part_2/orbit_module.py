@@ -51,6 +51,7 @@ def calc_solar_orbit_KD(pos_p, vel_p, pos_sun, vel_sun, G, N, dt,
     sun_b_M = sun_mass * M_inv
     plan_b_M = planet_masses * M_inv
 
+    vel_sun_tot = np.zeros((2,N), dtype=np.float64)
     num_plan = len(pos_p[0,:,0])
     pos_sun_temp = np.zeros((2))
     v_p_f = vel_p#np.zeros((2,num_plan))
@@ -92,10 +93,11 @@ def calc_solar_orbit_KD(pos_p, vel_p, pos_sun, vel_sun, G, N, dt,
 
             v_p_f[:,j] = v_p_h[:,j] + (a_p_f*(dt/2))
             v_s_f[:,j] = v_s_h[:,j] + (a_s_f*(dt/2))
+            vel_sun_tot[:,i] = vel_sun_tot[:,i] + v_s_f[:,j]
 
 
         pos_sun[:,i] = pos_sun[:,i-1] + pos_sun_temp
-    return pos_p, pos_sun
+    return pos_p, pos_sun, vel_sun_tot
 
 
 @jit(cache = True, nopython = True)
@@ -112,9 +114,10 @@ def calc_solar_orbit_KD_EN(pos_p, vel_p, pos_sun, vel_sun, G, N, dt,
     sun_b_M = sun_mass * M_inv
     plan_b_M = planet_masses * M_inv
 
+    vel_sun_tot = np.zeros((2,N), dtype=np.float64)
     num_plan = len(pos_p[0,:,0])
     pos_sun_temp = np.zeros((2))
-    v_p_f = vel_p#np.zeros((2,num_plan))
+    v_p_f = vel_p
     v_s_f = np.zeros((2,num_plan),dtype=np.float64)
     v_p_h = np.zeros((2,num_plan),dtype=np.float64)
     v_s_h = np.zeros((2,num_plan),dtype=np.float64)
@@ -154,6 +157,7 @@ def calc_solar_orbit_KD_EN(pos_p, vel_p, pos_sun, vel_sun, G, N, dt,
 
             v_p_f[:,j] = v_p_h[:,j] + (a_p_f*(dt/2))
             v_s_f[:,j] = v_s_h[:,j] + (a_s_f*(dt/2))
+            vel_sun_tot[:,i] = vel_sun_tot[:,i] + v_s_f[:,j]
 
             v_mag_p = np.sqrt(v_p_f[0,j]**2 + v_p_f[1,j]**2)
             v_mag_s = np.sqrt(v_s_f[0,j]**2 + v_s_f[1,j]**2)
@@ -169,7 +173,7 @@ def calc_solar_orbit_KD_EN(pos_p, vel_p, pos_sun, vel_sun, G, N, dt,
                                                    sun_mass)
 
         pos_sun[:,i] = pos_sun[:,i-1] + pos_sun_temp
-    return pos_p, pos_sun, tot_energies
+    return pos_p, pos_sun, tot_energies, vel_sun_tot
 
 @jit(cache = True, nopython = True)
 def get_tot_energy(r_mag, v_mag, G, P_m, S_m):
