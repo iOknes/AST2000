@@ -13,7 +13,7 @@ import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
 
-from orbit_module import calc_orbit_KD, check_tot_energy
+from orbit_module import calc_orbit_KD, check_tot_energy, calc_orbit_EC
 from orbit_module import calc_solar_orbit_KD, calc_solar_orbit_KD_EN
 
 
@@ -117,8 +117,13 @@ class PlanetOrbits():
         plt.close()
 
     def numerical_orbit(self, N, num_rev, filename,
-                        make_plot = True, check_pos = True):
+                        make_plot = True, check_pos = True,
+                        method = "LP_KD"):
 
+        methods = {}
+        methods["LP_KD"] = calc_orbit_KD
+        methods["EC"] = calc_orbit_EC
+        int_method = methods[method]
         x0 = self.system_data["initial_positions"][0] #AU
         y0 = self.system_data["initial_positions"][1] #AU
         vx0 = self.system_data["initial_velocities"][0] #AU/year
@@ -141,9 +146,9 @@ class PlanetOrbits():
         pos[0,:,0], pos[1,:,0] = x0, y0
         vel[0], vel[1] = vx0, vy0
 
-        pos = calc_orbit_KD(pos, vel, self.G, N_in, dt,
-                            self.system_data["star_mass"],
-                            self.system_data["masses"])
+        pos = int_method(pos, vel, self.G, N_in, dt,
+                         self.system_data["star_mass"],
+                         self.system_data["masses"])
 
         if make_plot == True:
             plt.figure(figsize = (9,7))
@@ -334,25 +339,27 @@ if __name__ == "__main__":
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-    """SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
+    #SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
-    SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
-                           make_plot = True, check_pos = True)
+    #SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
+    #                       make_plot = True, check_pos = True, method = "LP_KD")
+    SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical_wrong",
+                           make_plot = True, check_pos = False, method = "EC")
     # Ran with heaviest planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
+    """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical_big",
                              make_plot = save_plots, show_plot = plots,
                              log_pos = True, log_s_vel = True,
-                             planet_ind = [2])"""
+                             planet_ind = [2])
     SolSys.plot_radial_vel(filename = "solar_numerical_big", num_plan = 1,
                            add_noise = True, inclination = np.pi/3.,
                            pec_vel = 1.055)
     # Run with 2 heaviest planets + home planet
-    """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
+    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical_home",
                              make_plot = save_plots, show_plot = plots,
                              log_pos = True, log_s_vel = True,
-                             planet_ind = [2, 0, 6])"""
+                             planet_ind = [2, 0, 6])
     SolSys.plot_radial_vel(filename = "solar_numerical_home", num_plan = 3,
                            add_noise = True, inclination = np.pi/3.,
-                           pec_vel = 1.055)
+                           pec_vel = 1.055)"""

@@ -1,6 +1,21 @@
 from numba import jit
 import numpy as np
 
+@jit(cache = True, nopython = True)
+def calc_orbit_EC(pos, vel, G, N, dt, sun_mass, planet_masses):
+    # Kick drift leapfrog
+    v_last = vel
+    M = -1 * G * (planet_masses + sun_mass)
+    for i in range(1, N):
+        r_mag = np.sqrt((pos[0,:,i-1]**2)+(pos[1,:,i-1]**2))
+        u_r = pos[:,:,i-1] / r_mag
+
+        a = (M / r_mag**2) * u_r
+        v = v_last + a*dt
+        pos[:,:,i] = pos[:,:,i-1] + v*dt
+        v_last = v
+
+    return pos
 
 @jit(cache = True, nopython = True)
 def calc_orbit_KD(pos, vel, G, N, dt, sun_mass, planet_masses):
