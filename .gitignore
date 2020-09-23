@@ -1,3 +1,6 @@
 .DS_Store
 __pycache__/
 *.xyz
+*.npy
+*.pyc
+*.png

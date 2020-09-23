@@ -206,7 +206,7 @@ class Rocket():
             v_omega[0] = -omega*r[1]
             v_omega[1] = omega*r[0]
             v_tot = v + v_omega
-            v_mag = np.sqrt(np.sum(v**2))
+            v_mag = np.sqrt(np.sum(v_tot**2))
 
             r = r + (v_tot)*dt + (0.5 * a * (dt**2))
             t += dt
@@ -290,7 +290,7 @@ if __name__ == "__main__":
 
     R = Rocket(log_name = log_name, username = username)
     num_box = 5e14#6.67e14#1e14
-    fuel_mass = 30000 #kg
+    fuel_mass = 45000 #kg
     dt = 1e-3
     dv = R.escape_velocity
 
