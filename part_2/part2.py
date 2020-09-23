@@ -255,13 +255,25 @@ class PlanetOrbits():
             positions["sun_positions"] = pos_sun
             np.save(log_name, positions)
 
+    def generate_light_curve(self, planet_index=0, N=1001, transit_fraction=0.8):
+        t = np.linspace(0,1,N)
+        star_radius = self.SS.star_radius
+        p_raidus = self.SS.radii[planet_index]
+        star_area = star_radius**2 * np.pi
+        planet_area = p_raidus**2 * np.pi
+        relative_area = planet_area / star_area
+        light_curve = np.ones(N)
+        start_time = int((1 - transit_fraction) * N)
+        light_curve[start_time:-start_time] = 1 - relative_area
+        #light_curve += np.random.normal(0, 0.2, (N))
+        return t, light_curve
+
     def check_keplers_laws(self, filename='numerical'):
         infile = np.load(f"{self.log_dir}/{filename}.npy", allow_pickle=True)
         t = infile[0]
         r = infile[1]
         r = r[:,0,:].T
         v = np.gradient(r)
-        print(v.shape)
 
 if __name__ == "__main__":
 
@@ -300,3 +312,9 @@ if __name__ == "__main__":
                              planet_ind = [2,0,6])"""
 
     SolSys.check_keplers_laws()
+    light_curve = SolSys.generate_light_curve(2)
+    plt.figure(figsize=(9,7))
+    plt.plot(*light_curve)
+    plt.xlabel("Relative time of transit")
+    plt.ylabel("Relative luminocity")
+    plt.savefig(f"{img_dir}/light_curve_relative_flux.png", dpi=300)
