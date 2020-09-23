@@ -374,9 +374,6 @@ if __name__ == "__main__":
                            add_noise = True, inclination = np.pi/3.,
                            pec_vel = 1.055)
 
-
-
-    SolSys.light_curve(filename = "numerical_long")
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
                            make_plot = True, check_pos = True)
 
