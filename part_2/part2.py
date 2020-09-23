@@ -13,11 +13,8 @@ import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
 
-<<<<<<< HEAD:part_2/part2.py
 from orbit_module import calc_orbit_KD, check_tot_energy, calc_orbit_EC
-=======
 from orbit_module import calc_orbit_KD, check_tot_energy
->>>>>>> master:part2.py
 from orbit_module import calc_solar_orbit_KD, calc_solar_orbit_KD_EN
 
 
@@ -150,15 +147,9 @@ class PlanetOrbits():
         pos[0,:,0], pos[1,:,0] = x0, y0
         vel[0], vel[1] = vx0, vy0
 
-<<<<<<< HEAD:part_2/part2.py
-        pos = int_method(pos, vel, self.G, N_in, dt,
-                         self.system_data["star_mass"],
-                         self.system_data["masses"])
-=======
         pos = calc_orbit_KD(pos, vel, self.G, N_in, dt,
                             self.system_data["star_mass"],
                             self.system_data["masses"])
->>>>>>> master:part2.py
 
         if make_plot == True:
             plt.figure(figsize = (9,7))
@@ -183,12 +174,9 @@ class PlanetOrbits():
     def solar_orbit_numerical(self, N, num_rev, filename,
                               make_plot = True, show_plot = True,
                               log_pos = True, planet_ind = None,
-<<<<<<< HEAD:part_2/part2.py
                               check_energy = True, log_s_vel = True,
                               tol = 1e-3):
-=======
                               check_energy = True, tol = 1e-3):
->>>>>>> master:part2.py
         if planet_ind == None:
             # Reverts to heaviest planet if none specified
             masses = self.system_data["masses"]
@@ -226,7 +214,6 @@ class PlanetOrbits():
                                         [1][planet_ind[i]])
 
         if check_energy == True:
-<<<<<<< HEAD:part_2/part2.py
             pos_p,pos_sun,tot_energies,v_sun = calc_solar_orbit_KD_EN(pos,
                                                                       vel,
                                                                       pos_sun,
@@ -253,7 +240,6 @@ class PlanetOrbits():
             pos_p, pos_sun, vel_sun = calc_solar_orbit_KD(pos, vel, pos_sun,
                                                           vel_sun, self.G, N_in,
                                                           dt, sun_mass, masses)
-=======
             pos_p, pos_sun, tot_energies = calc_solar_orbit_KD_EN(pos, vel,
                                                                   pos_sun,
                                                                   vel_sun,
@@ -278,7 +264,6 @@ class PlanetOrbits():
             pos_p, pos_sun = calc_solar_orbit_KD(pos, vel, pos_sun, vel_sun,
                                                  self.G, N_in, dt, sun_mass,
                                                  masses)
->>>>>>> master:part2.py
 
         if make_plot == True:
             img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}planets"
@@ -305,7 +290,6 @@ class PlanetOrbits():
             positions["time"] = t
             np.save(log_name, positions)
 
-<<<<<<< HEAD:part_2/part2.py
         if log_s_vel == True:
             log_name = f"{self.log_dir}/{filename}_{len(planet_ind)}_vel_sun.npy"
             velocities = {}
@@ -406,7 +390,6 @@ class PlanetOrbits():
 
 
 
-=======
     def check_keplers_laws(self, filename='numerical'):
         infile = np.load(f"{self.log_dir}/{filename}.npy", allow_pickle=True)
         t = infile[0]
@@ -414,7 +397,6 @@ class PlanetOrbits():
         r = r[:,0,:].T
         v = np.gradient(r)
         print(v.shape)
->>>>>>> master:part2.py
 
 if __name__ == "__main__":
 
@@ -427,23 +409,15 @@ if __name__ == "__main__":
     N = int(1e5)
     rev = 21
     N_solar = int(5e4)
-<<<<<<< HEAD:part_2/part2.py
-    rev_solar = 2
-
-    plots = False
-    save_plots = False
-=======
     rev_solar = 5
 
     plots = False
     save_plots = True
->>>>>>> master:part2.py
 
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
 
-<<<<<<< HEAD:part_2/part2.py
     """
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
@@ -475,7 +449,6 @@ if __name__ == "__main__":
 
 
     SolSys.light_curve(filename = "numerical_long")
-=======
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
                            make_plot = True, check_pos = True)
     # Ran with heaviest planet
@@ -492,4 +465,3 @@ if __name__ == "__main__":
                              planet_ind = [2,0,6])"""
 
     SolSys.check_keplers_laws()
->>>>>>> master:part2.py
