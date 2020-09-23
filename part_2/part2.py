@@ -328,8 +328,12 @@ class PlanetOrbits():
         t = infile[0]
         r = infile[1]
         r = r[:,0,:].T
-        v = np.gradient(r)
-
+        A = np.cross(r[:-1], r[1:])/2
+        relative_diff = np.abs((A[0] - A[20000]) / A[0])
+        print("\nNumbers for checks of Kepler's laws:")
+        print(f"Difference in area (relative): {relative_diff}")
+        print(f"Distance traveled at aphelion: {np.linalg.norm(r[1] - r[0])} AU")
+        print(f"Distance traveled at perihelion: {np.linalg.norm(r[20001] - r[20000])} AU")
 
 if __name__ == "__main__":
 
@@ -351,7 +355,6 @@ if __name__ == "__main__":
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
 
-    
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
@@ -381,8 +384,8 @@ if __name__ == "__main__":
 
 
 
-    """SolSys.light_curve(filename = "numerical_long")
+    SolSys.light_curve(filename = "numerical_long")
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
-                           make_plot = True, check_pos = True)"""
+                           make_plot = True, check_pos = True)
 
-    #SolSys.check_keplers_laws()
+    SolSys.check_keplers_laws()
