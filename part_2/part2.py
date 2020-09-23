@@ -255,7 +255,9 @@ class PlanetOrbits():
             positions["sun_positions"] = pos_sun
             np.save(log_name, positions)
 
-
+    def check_keplers_laws(self, filename='numerical'):
+        pos = np.load(f"{self.log_dir}/{filename}.npy")
+        print(pos.size)
 
 if __name__ == "__main__":
 
@@ -292,3 +294,5 @@ if __name__ == "__main__":
                              make_plot = save_plots, show_plot = plots,
                              log_pos = True,
                              planet_ind = [2,0,6])
+
+    SolSys.check_keplers_laws()
