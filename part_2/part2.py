@@ -175,7 +175,6 @@ class PlanetOrbits():
                               make_plot = True, show_plot = True,
                               log_pos = True, planet_ind = None,
                               check_energy = True, log_s_vel = True,
-                              tol = 1e-3):
                               check_energy = True, tol = 1e-3):
         if planet_ind == None:
             # Reverts to heaviest planet if none specified
