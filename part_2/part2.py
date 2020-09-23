@@ -113,7 +113,7 @@ class PlanetOrbits():
           ncol=n_col, fancybox=True, shadow=True)
         plt.tight_layout()
         #plt.show()
-        plt.savefig(f"{self.img_dir}/{filename}.png",dpi=800)
+        plt.savefig(f"{self.img_dir}/{filename}.png",dpi=300)
         plt.close()
 
     def numerical_orbit(self, N, num_rev, filename,
@@ -155,7 +155,7 @@ class PlanetOrbits():
             plt.legend( )
             plt.axhline(0, lw=0.5)
             plt.axvline(0, lw=0.5)
-            plt.savefig(f"{self.img_dir}/{filename}.png",dpi=800)
+            plt.savefig(f"{self.img_dir}/{filename}.png",dpi=300)
             plt.close()
 
         if (num_rev > 20) and (check_pos == True):
@@ -224,7 +224,7 @@ class PlanetOrbits():
             plt.legend()
             plt.xlabel("Time, t")
             plt.ylabel("Energy, E")
-            plt.savefig(f"{img_name}_solar.png", dpi=1200)
+            plt.savefig(f"{img_name}_solar.png", dpi=300)
             plt.close()
         else:
             pos_p, pos_sun = calc_solar_orbit_KD(pos, vel, pos_sun, vel_sun,
@@ -238,12 +238,12 @@ class PlanetOrbits():
             plt.axhline(0,lw=0.25)
             plt.axvline(0,lw=0.25)
             plt.axis("equal")
-            plt.savefig(f"{img_name}_solar.png", dpi=1200)
+            plt.savefig(f"{img_name}_solar.png", dpi=300)
 
             for i in range(len(planet_ind)):
                 plt.plot(pos_p[0,i,:], pos_p[1,i,:])
 
-            plt.savefig(f"{img_name}.png", dpi=1200)
+            plt.savefig(f"{img_name}.png", dpi=300)
             if show_plot == True:
                 plt.show()
             plt.close()
@@ -256,8 +256,12 @@ class PlanetOrbits():
             np.save(log_name, positions)
 
     def check_keplers_laws(self, filename='numerical'):
-        pos = np.load(f"{self.log_dir}/{filename}.npy")
-        print(pos.size)
+        infile = np.load(f"{self.log_dir}/{filename}.npy", allow_pickle=True)
+        t = infile[0]
+        r = infile[1]
+        r = r[:,0,:].T
+        v = np.gradient(r)
+        print(v.shape)
 
 if __name__ == "__main__":
 
@@ -278,21 +282,21 @@ if __name__ == "__main__":
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-    SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
+    #SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
                            make_plot = True, check_pos = True)
     # Ran with heaviest planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
+    """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
                              make_plot = save_plots, show_plot = plots,
                              log_pos = True,
-                             planet_ind = [2])
+                             planet_ind = [2])"""
     # Run with 2 heaviest planets + home planet
-    SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
+    """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
                              make_plot = save_plots, show_plot = plots,
                              log_pos = True,
-                             planet_ind = [2,0,6])
+                             planet_ind = [2,0,6])"""
 
     SolSys.check_keplers_laws()
