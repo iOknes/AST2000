@@ -176,7 +176,6 @@ class PlanetOrbits():
                               log_pos = True, planet_ind = None,
                               check_energy = True, log_s_vel = True,
                               tol = 1e-3):
-                              check_energy = True, tol = 1e-3):
         if planet_ind == None:
             # Reverts to heaviest planet if none specified
             masses = self.system_data["masses"]
@@ -236,30 +235,6 @@ class PlanetOrbits():
                 plt.ylabel("Energy, E")
                 plt.savefig(f"{img_name}_solar.png", dpi=300)
                 plt.close()
-        else:
-            pos_p, pos_sun, vel_sun = calc_solar_orbit_KD(pos, vel, pos_sun,
-                                                          vel_sun, self.G, N_in,
-                                                          dt, sun_mass, masses)
-            pos_p, pos_sun, tot_energies = calc_solar_orbit_KD_EN(pos, vel,
-                                                                  pos_sun,
-                                                                  vel_sun,
-                                                                  self.G,
-                                                                  N_in, dt,
-                                                                  sun_mass,
-                                                                  masses)
-            plt.figure(figsize=(9,7))
-            img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}"
-            img_name += "_energy_planets"
-            for j in range(len(planet_ind)):
-                ind = int(N*.1)
-                tot_en = tot_energies[0,j,:] + tot_energies[1,j,:]
-                lab = f"Planet {planet_ind[j]} and sun"
-                plt.plot(t[1:], tot_en, lw=0.5, label=lab)
-            plt.legend()
-            plt.xlabel("Time, t")
-            plt.ylabel("Energy, E")
-            plt.savefig(f"{img_name}_solar.png", dpi=300)
-            plt.close()
         else:
             pos_p, pos_sun = calc_solar_orbit_KD(pos, vel, pos_sun, vel_sun,
                                                  self.G, N_in, dt, sun_mass,
@@ -363,7 +338,7 @@ class PlanetOrbits():
             elif ((pos[1,i] + p_rad) < y_bot):
                 pass
 
-            if ((pos[1,i] - p_rad) < y_top) and ((pos[1,i] + p_rad) > y_bot)
+            #if ((pos[1,i] - p_rad) < y_top) and ((pos[1,i] + p_rad) > y_bot)
 
 
 
@@ -396,7 +371,7 @@ class PlanetOrbits():
         r = infile[1]
         r = r[:,0,:].T
         v = np.gradient(r)
-        print(v.shape)
+
 
 if __name__ == "__main__":
 
@@ -418,7 +393,7 @@ if __name__ == "__main__":
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
 
-    """
+
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
@@ -427,6 +402,7 @@ if __name__ == "__main__":
                            make_plot = True, check_pos = True, method = "LP_KD")
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical_wrong",
                            make_plot = True, check_pos = False, method = "EC")
+    """
     # Ran with heaviest planet
     SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical_big",
@@ -448,9 +424,9 @@ if __name__ == "__main__":
     """
 
 
-    SolSys.light_curve(filename = "numerical_long")
+    """SolSys.light_curve(filename = "numerical_long")
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
-                           make_plot = True, check_pos = True)
+                           make_plot = True, check_pos = True)"""
     # Ran with heaviest planet
     """SolSys.solar_orbit_numerical(N = N_solar, num_rev = rev_solar,
                              filename = "solar_numerical",
@@ -464,4 +440,4 @@ if __name__ == "__main__":
                              log_pos = True,
                              planet_ind = [2,0,6])"""
 
-    SolSys.check_keplers_laws()
+    #SolSys.check_keplers_laws()
