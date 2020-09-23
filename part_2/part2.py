@@ -78,7 +78,7 @@ class PlanetOrbits():
         r = np.zeros((len(theta),n_p))
         for i in range(len(r)):
             r[i] = (p/(1.0 + self.system_data["eccentricities"]*
-                    np.cos(theta[i]-self.system_data["initial_orbital_angles"])))
+                    np.cos(theta[i]+self.system_data["initial_orbital_angles"])))
         e_x = np.zeros((len(theta),n_p))
         e_y = np.zeros((len(theta),n_p))
         ur = np.array([np.cos(theta), np.sin(theta)])
