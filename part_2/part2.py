@@ -345,7 +345,7 @@ if __name__ == "__main__":
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-    """
+
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
@@ -375,7 +375,6 @@ if __name__ == "__main__":
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
                            make_plot = True, check_pos = True)
-    """
 
     SolSys.check_keplers_laws()
     light_curve = SolSys.generate_light_curve(2)
