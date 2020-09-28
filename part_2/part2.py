@@ -17,7 +17,6 @@ from orbit_module import calc_orbit_KD, check_tot_energy, calc_orbit_EC
 from orbit_module import calc_orbit_KD, check_tot_energy
 from orbit_module import calc_solar_orbit_KD, calc_solar_orbit_KD_EN
 
-
 class PlanetOrbits():
 
     def __init__(self, log_name, log_dir, img_dir,
@@ -273,7 +272,7 @@ class PlanetOrbits():
         light_curve = np.ones(N)
         start_time = int((1 - transit_fraction) * N)
         light_curve[start_time:-start_time] = 1 - relative_area
-        #light_curve += np.random.normal(0, 0.2, (N))
+        light_curve += np.random.normal(0, 0.2, (N))
         return t, light_curve
 
     def load_logs(self, filename, num_plan):
@@ -315,11 +314,11 @@ class PlanetOrbits():
         plt.savefig(f"{img_name}_plot.png", dpi=300)
         plt.close()
 
-    def check_keplers_laws(self, filename='numerical'):
+    def check_keplers_laws(self, planet_index=0, filename='numerical'):
         infile = np.load(f"{self.log_dir}/{filename}.npy", allow_pickle=True)
-        t = infile[0]
-        r = infile[1]
-        r = r[:,0,:].T
+        t = infile['times']
+        r = infile['planet_positions']
+        r = r[:,planet_index,:].T
         A = np.cross(r[:-1], r[1:])/2
         relative_diff = np.abs((A[0] - A[20000]) / A[0])
         print("\nNumbers for checks of Kepler's laws:")
@@ -346,7 +345,7 @@ if __name__ == "__main__":
     SolSys = PlanetOrbits(log_name = log_name, username = username,
                           log_dir = log_dir, img_dir = img_dir)
     SolSys.SS.print_info()
-
+    """
     SolSys.analytical_orbit(plot_size=(9,7), filename = "analytical_orbit")
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
@@ -376,6 +375,7 @@ if __name__ == "__main__":
 
     SolSys.numerical_orbit(N = N, num_rev = rev, filename = "numerical",
                            make_plot = True, check_pos = True)
+    """
 
     SolSys.check_keplers_laws()
     light_curve = SolSys.generate_light_curve(2)
@@ -384,3 +384,4 @@ if __name__ == "__main__":
     plt.xlabel("Relative time of transit")
     plt.ylabel("Relative luminocity")
     plt.savefig(f"{img_dir}/light_curve_relative_flux.png", dpi=300)
+    print(f"Figure saved to {img_dir}/light_curve_relative_flux.png")
