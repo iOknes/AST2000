@@ -382,6 +382,6 @@ if __name__ == "__main__":
     plt.figure(figsize=(9,7))
     plt.plot(*light_curve)
     plt.xlabel("Relative time of transit")
-    plt.ylabel("Relative luminocity")
+    plt.ylabel("Relative flux")
     plt.savefig(f"{img_dir}/light_curve_relative_flux.png", dpi=300)
     print(f"Figure saved to {img_dir}/light_curve_relative_flux.png")
