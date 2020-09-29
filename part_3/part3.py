@@ -9,8 +9,8 @@ from ast2000tools.space_mission import SpaceMission
 """
 Returns an array of boolians corresponding to the planets which are within the
 habitable zone of the star. The habitable zone is set to be any planet who's 
-surface temperature is between260 K and 390 K as default, but this can be set by
-the user.
+surface temperature is between 260 K and 390 K as default, but this can be set
+by the user.
 
 Arguments:
 solar_system: ast2000tools.solar_system.SolarSystem instance
@@ -34,3 +34,6 @@ if __name__ == "__main__":
     habitable_planets = find_habitable_planets(SolSys)
     print(np.arange(len(habitable_planets))[habitable_planets])
     print(np.array(SolSys.types)[habitable_planets])
+    print(SolSys.semi_major_axes[habitable_planets] - SolSys.semi_major_axes[0])
+    """From this we decide that planet 3 seems to be the best target, seeing as
+    it is the closest habitable planet to our home planet"""
