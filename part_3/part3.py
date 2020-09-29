@@ -21,11 +21,15 @@ Returns:
 habitable_planets: np.array(dtype=bool) of what planets are habitable
 """
 def find_habitable_planets(solar_system, T_min=260, T_max=390):
-    L = const.sigma * solar_system.star_temperature**4 * (solar_system.star_radius * 1e3)**2
     r = solar_system.semi_major_axes * const.AU
-    E = L / r**2
-    T = (E / const.sigma)**(1/4)
+    T = solar_system.star_temperature * np.sqrt(solar_system.star_radius * 1e3 / (2 * r))
     return (T >= T_min) * (T <= T_max)
+
+def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_effect=40):
+    star_radius = solar_system.star_radius * 1e3
+    semi_major_axis = solar_system.semi_major_axes[target_planet] * const.AU
+    return target_effect * semi_major_axis**2 / \
+    (efficiency * const.sigma * solar_system.star_temperature**4 * star_radius**2)
 
 if __name__ == "__main__":
     username = "ivero"
@@ -35,5 +39,8 @@ if __name__ == "__main__":
     print(np.arange(len(habitable_planets))[habitable_planets])
     print(np.array(SolSys.types)[habitable_planets])
     print(SolSys.semi_major_axes[habitable_planets] - SolSys.semi_major_axes[0])
-    """From this we decide that planet 3 seems to be the best target, seeing as
-    it is the closest habitable planet to our home planet"""
+    """From this we decide that planet 1 is our target, seeing as it is the only
+    other habitable planet than our home planet"""
+    target_planet = 1
+    min_solar_panel_area = find_lander_panel_size(SolSys, 2)
+    print(f"Minimum solar panel size: {min_solar_panel_area}m^2")
