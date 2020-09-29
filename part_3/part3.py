@@ -11,8 +11,10 @@ seed = utils.get_seed(username)
 SolSys = SolarSystem(seed)
 
 if __name__ == "__main__":
-    L = const.sigma * SolSys.star_temperature**4 * SolSys.star_radius**2
-    r = SolSys.semi_major_axes
+    L = const.sigma * SolSys.star_temperature**4 * (SolSys.star_radius * 1e3)**2
+    r = SolSys.semi_major_axes * const.AU
     E = L / r**2
-    print(f"Habitable zone: {d_AU:.2f}AU +/- {d_AU * 0.05:.2f}AU")
-    print((SolSys.semi_major_axes <= d_AU * 10) * (SolSys.semi_major_axes >= d_AU * 0.38))
+    T = (E / const.sigma)**(1/4)
+    print(r)
+    print(T)
+    print((T >= 260) * (T <= 390))
