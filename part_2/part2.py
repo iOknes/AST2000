@@ -380,7 +380,7 @@ if __name__ == "__main__":
 
     light_curve = SolSys.generate_light_curve(2)
     plt.figure(figsize=(9,7))
-    plt.plot(*light_curve)
+    plt.scatter(*light_curve, "x")
     plt.xlabel("Relative time of transit")
     plt.ylabel("Relative flux")
     plt.savefig(f"{img_dir}/light_curve_relative_flux.png", dpi=300)
