@@ -14,8 +14,8 @@ by the user.
 
 Arguments:
 solar_system: ast2000tools.solar_system.SolarSystem instance
-T_min: minimum temperature for planets to be counted as habitable
-T_max: maximum temperature for planets to be counted as habitable
+(optional) T_min: minimum temperature for planets to be counted as habitable (default: 260)
+(optional) T_max: maximum temperature for planets to be counted as habitable (default: 390)
 
 Returns:
 habitable_planets: np.array(dtype=bool) of what planets are habitable
@@ -25,6 +25,18 @@ def find_habitable_planets(solar_system, T_min=260, T_max=390):
     T = solar_system.star_temperature * np.sqrt(solar_system.star_radius * 1e3 / (2 * r))
     return (T >= T_min) * (T <= T_max)
 
+"""
+Returns required solar panel size for operating a lander at a given planet.
+
+Arguments:
+solar_system: ast2000tools.solar_system.SolarSystem instance where the planet and star are located
+target_planet: the index of the planet in the solar system the lander will be going to
+(optional) efficiency: the efficiency coeffisient of the solar panels (default: 0.12)
+(optional) target_effciency: the desired effect from the solar panels in watts (default: 40)
+
+Returns:
+
+"""
 def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_effect=40):
     star_radius = solar_system.star_radius * 1e3
     semi_major_axis = solar_system.semi_major_axes[target_planet] * const.AU
@@ -42,5 +54,5 @@ if __name__ == "__main__":
     """From this we decide that planet 1 is our target, seeing as it is the only
     other habitable planet than our home planet"""
     target_planet = 1
-    min_solar_panel_area = find_lander_panel_size(SolSys, 2)
+    min_solar_panel_area = find_lander_panel_size(SolSys, target_planet)
     print(f"Minimum solar panel size: {min_solar_panel_area}m^2")
