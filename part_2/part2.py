@@ -244,6 +244,8 @@ class PlanetOrbits():
             plt.axhline(0,lw=0.25)
             plt.axvline(0,lw=0.25)
             plt.axis("equal")
+            plt.xlabel("AU")
+            plt.ylabel("AU")
             plt.savefig(f"{img_name}_solar.png", dpi=300)
 
             for i in range(len(planet_ind)):
