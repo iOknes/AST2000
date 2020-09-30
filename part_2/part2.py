@@ -377,6 +377,7 @@ if __name__ == "__main__":
                            make_plot = True, check_pos = True)
 
     SolSys.check_keplers_laws()
+
     light_curve = SolSys.generate_light_curve(2)
     plt.figure(figsize=(9,7))
     plt.plot(*light_curve)
