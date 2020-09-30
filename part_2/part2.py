@@ -240,17 +240,19 @@ class PlanetOrbits():
         if make_plot == True:
             img_name = f"{self.img_dir}/{filename}_{len(planet_ind)}planets"
             plt.figure(figsize=(9,7))
-            plt.plot(pos_sun[0,5:], pos_sun[1,5:])
+            plt.plot(pos_sun[0,5:], pos_sun[1,5:], label = "Star")
             plt.axhline(0,lw=0.25)
             plt.axvline(0,lw=0.25)
             plt.axis("equal")
             plt.xlabel("AU")
             plt.ylabel("AU")
+            plt.legend()
             plt.savefig(f"{img_name}_solar.png", dpi=300)
 
             for i in range(len(planet_ind)):
-                plt.plot(pos_p[0,i,5:], pos_p[1,i,5:])
-
+                lab_planet = f"Planet {planet_ind[i]}"
+                plt.plot(pos_p[0,i,5:], pos_p[1,i,5:], label = lab_planet)
+            plt.legend()
             plt.savefig(f"{img_name}.png", dpi=300)
             if show_plot == True:
                 plt.show()
