@@ -35,7 +35,8 @@ target_planet: the index of the planet in the solar system the lander will be go
 (optional) target_effciency: the desired effect from the solar panels in watts (default: 40)
 
 Returns:
-
+solar_panel_area: (float) required area for solar pnale on given planet to meet
+specified effect at given effect
 """
 def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_effect=40):
     star_radius = solar_system.star_radius * 1e3
