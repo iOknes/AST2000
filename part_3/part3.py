@@ -6,6 +6,8 @@ import ast2000tools.constants as const
 from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
 
+from rocket_chamber import Rocket_Chamber
+
 """
 Returns an array of boolians corresponding to the planets which are within the
 habitable zone of the star. The habitable zone is set to be any planet who's 
@@ -45,14 +47,21 @@ def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_
     (efficiency * const.sigma * solar_system.star_temperature**4 * star_radius**2)
 
 class SpaceMission:
-    def __init__(self, log_dir="logs/numerical_long.npy"):
+    def __init__(self, rocket_motor=None, log_dir="logs/numerical_long.npy"):
         log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
         infile = np.load(log_dir, allow_pickle=True)
         self.t = infile['times']
         self.p = infile['planet_positions'].T
+        if rocket_motor == None:
+            self.rocket_motor = Rocket_Chamber(username="ivero")
+            self.rocket_motor.run_chamber_mp()
+        else:
+            self.rocket_motor = rocket_motor
+
 
     def launch(self, launch_position, launch_time):
-        
+        dt = self.t[1]
+        self.r = np.zeros((len(self.t), 2))
 
 if __name__ == "__main__":
     username = "ivero"
