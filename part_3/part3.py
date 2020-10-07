@@ -45,11 +45,13 @@ def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_
     (efficiency * const.sigma * solar_system.star_temperature**4 * star_radius**2)
 
 class SpaceMission:
-    def __init__(self, launch_position, launch_time, log_dir="logs/numerical_long.npy"):
+    def __init__(self, log_dir="logs/numerical_long.npy"):
         log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
         infile = np.load(log_dir, allow_pickle=True)
-        t = infile['times']
-        r = infile['planet_positions'].T
+        self.t = infile['times']
+        self.p = infile['planet_positions'].T
+
+    def launch(self, launch_position, launch_time):
         
 
 if __name__ == "__main__":
