@@ -53,15 +53,26 @@ class SpaceMission:
         self.t = infile['times']
         self.p = infile['planet_positions'].T
         if rocket_motor == None:
-            self.rocket_motor = Rocket_Chamber(username="ivero")
+            self.rocket_motor = Rocket_Chamber(username="ivero", cache=False)
             self.rocket_motor.run_chamber_mp()
         else:
             self.rocket_motor = rocket_motor
-
+        self.thrust = 5e14 * self.rocket_motor.F
 
     def launch(self, launch_position, launch_time):
+        #Initialise paramters for simulation
         dt = self.t[1]
+        N = len(self.t)
         self.r = np.zeros((len(self.t), 2))
+        t_diff = np.abs(self.t - launch_time)
+        i_start = np.where(t_diff == np.min(t_diff))[0][0]
+        t_start = self.t[i_start]
+
+        #Copy planets position to space ships position pre-launch.
+        self.r[:i_start] = self.p[:i_start+1,0]
+
+        for i in range(i_start, N):
+            r[i] = r[i-1]
 
 if __name__ == "__main__":
     username = "ivero"
