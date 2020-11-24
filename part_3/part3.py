@@ -23,8 +23,8 @@ Returns:
 habitable_planets: np.array(dtype=bool) of what planets are habitable
 """
 def find_habitable_planets(solar_system, T_min=260, T_max=390):
-    r = solar_system.semi_major_axes * const.AU
-    T = solar_system.star_temperature * np.sqrt(solar_system.star_radius * 1e3 / (2 * r))
+    a = solar_system.semi_major_axes * const.AU
+    T = solar_system.star_temperature * np.sqrt(solar_system.star_radius * 1e3 / (2 * a))
     return (T >= T_min) * (T <= T_max)
 
 """
