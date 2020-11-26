@@ -94,8 +94,7 @@ class SpaceCraft():
         alpha_phi = alpha_phi * self.dtr
         max_val = (2 * np.sin(alpha_phi/2)) / (1 + np.cos(alpha_phi/2))
         if max == False:
-            min = max_val * -1
-            return min
+            return (max_val * -1)
         return max_val
 
     def get_Y_max_min(self, theta_max, theta_min, max = True):
@@ -103,13 +102,11 @@ class SpaceCraft():
         alpha_theta = alpha_theta * self.dtr
         max_val = (2 * np.sin(alpha_theta/2)) / (1 + np.cos(alpha_theta/2))
         if max == False:
-            min = max_val * -1
-            return min
+            return (max_val * -1)
         return max_val
 
     def sample_pic(self, img_name, FOV, center):
         hk = np.load("himmelkule.npy")
-        print(np.shape(hk))
         FOV_theta, FOV_phi = FOV
         theta_0, phi_0 = center
         img = Image.open(img_name)
@@ -151,10 +148,13 @@ class SpaceCraft():
                 grid_xy[i,j,0] = grid_y[i]
                 grid_xy[i,j,1] = grid_x[j]
 
-                grid_phi_theta[i,j,0] = self.get_theta(theta_0, grid_x[j],
-                                                       grid_y[i])
-                grid_phi_theta[i,j,1] = self.get_phi(phi_0, grid_x[j],
-                                                     grid_y[i])
+
+        for i in range(img_Y):
+            for j in range(img_X):
+                grid_phi_theta[i,j,0] = self.get_theta(theta_0, grid_xy[i,j,0],
+                                                       grid_xy[i,j,1])
+                grid_phi_theta[i,j,1] = self.get_phi(phi_0, grid_xy[i,j,0],
+                                                     grid_xy[i,j,1])
         #print(grid_phi_theta)
         gen_img = np.zeros((img_Y, img_X,3))
 
@@ -169,7 +169,7 @@ class SpaceCraft():
 
         new_img = Image.fromarray(gen_img.astype(np.uint8))
 
-        #new_img.show()
+        new_img.show()
         #img.show()
 
 
