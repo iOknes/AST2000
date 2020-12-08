@@ -28,7 +28,7 @@ def find_habitable_planets(solar_system, T_min=260, T_max=390):
     return (T >= T_min) * (T <= T_max)
 
 """
-Returns required solar panel size for operating a lander at a given planet.
+Calculates required solar panel size for operating a lander at a given planet.
 
 Arguments:
 solar_system: ast2000tools.solar_system.SolarSystem instance where the planet and star are located
@@ -46,9 +46,23 @@ def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_
     return target_effect * semi_major_axis**2 / \
     (efficiency * const.sigma * solar_system.star_temperature**4 * star_radius**2)
 
+"""
+Calculates best case scenario proximity to a planet for it to be considered the
+dominant gravitational force on an object.
+
+Arguments:
+solar_system: ast2000tools.solar_system.SolarSystem instance where the planet and star are located
+target_planet: the index of the planet in the solar system the lander will be going to
+
+Returns:
+required_proximity_distance: the best case scenario distance from a planet that
+makes it the dominant force on an object
+"""
 def get_required_proximity(solar_system, target_planet):
-    
-    return None
+    m_s = solar_system.star_mass
+    m_p = solar_system.masses[target_planet]
+    r = solar_system.semi_major_axes[target_planet]
+    return r * np.sqrt(m_p / (5 * m_s))
 
 class SpaceMission:
     def __init__(self, rocket_motor=None, log_dir="logs/numerical_long.npy"):
