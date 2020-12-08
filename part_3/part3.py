@@ -46,6 +46,10 @@ def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_
     return target_effect * semi_major_axis**2 / \
     (efficiency * const.sigma * solar_system.star_temperature**4 * star_radius**2)
 
+def get_required_proximity(solar_system, target_planet):
+    
+    return None
+
 class SpaceMission:
     def __init__(self, rocket_motor=None, log_dir="logs/numerical_long.npy"):
         log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
