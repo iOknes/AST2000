@@ -64,8 +64,8 @@ class SpaceCraft():
 
         x_max = self.get_X_max_min(alpha_phi, max = True)
         x_min = self.get_X_max_min(alpha_phi, max = False)
-        y_max = self.get_X_max_min(alpha_theta, max = True)
-        y_min = self.get_X_max_min(alpha_theta, max = False)
+        y_max = self.get_Y_max_min(alpha_theta, max = True)
+        y_min = self.get_Y_max_min(alpha_theta, max = False)
 
         x = np.linspace(x_min, x_max, width)
         y = np.linspace(y_min, y_max, height)
