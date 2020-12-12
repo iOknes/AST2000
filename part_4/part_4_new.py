@@ -8,12 +8,16 @@ import numpy as np
 from os import path
 from os import makedirs
 from PIL import Image
-
+from sympy.core.symbol import Symbol
+from sympy.solvers.solvers import solve
 
 import ast2000tools.constants as const
 import ast2000tools.utils as utils
 from ast2000tools.solar_system import SolarSystem
 from ast2000tools.space_mission import SpaceMission
+
+
+from ast2000tools.shortcuts import SpaceMissionShortcuts
 
 
 def deg2rad(deg):
@@ -41,9 +45,12 @@ class SpaceCraft():
         self.hk = np.load(hk)
         self.H_alpha = 656.3 # nm
 
+        #self.shortcut = SpaceMissionShortcuts(self.SM)
+
     def set_seed(self):
         self.seed = utils.get_seed(self.username)
         np.random.seed(self.seed)
+        print(self.seed)
 
     def deg2rad(self, deg):
         return (deg / 180)*np.pi
@@ -196,13 +203,12 @@ class SpaceCraft():
         phi = self.deg2rad(np.asarray([phi0, phi1]))
         d_lamba = np.asarray([d_lambda0, d_lambda1])
         return phi, d_lambda
-    
+
     def peculiar_velocity(self, d_lambda):
         pec_v = (-d_lambda / self.H_alpha) * const.c
         return pec_v
 
     def vel(phi, d_lambda):
-        self.get_ref_stars()
         k = (1 / np.sin(phi[1] - phi[0]))
         v_r = (-d_lambda/self.H_alpha)*const.c - self.peculiar_velocity(d_lambda)
         v_x = (k( * (np.sin(phi[1])) * v_r[0]) - (np.sin(phi[0] * v_r[1])))
@@ -210,9 +216,77 @@ class SpaceCraft():
         v = (np.asarray([v_x, v_y]) * const.yr) / const.AU
         return v
 
+    def load_orbit_data(self, orbit_dir, orbit_file):
+        # Get orbit data from part 2
+        fn = f"{orbit_dir}/{orbit_file}"
+        self.orbits = np.load(fn)
+
+    def load_engine_data(self, engine_dir, engine_file):
+        # Get engine data from part 1
+        fn = f"{engine_dir}/{engine_file}"
+        self.engine = np.load(fn)
+
+    def xy_to_r(self, xy):
+        xy_r = np.sqrt(xy[0]**2 + xy[1]**2)
+        return xy_r
+
+    def get_craft_position(self):
+        #Gets craft position in relation to star, from launch from planet
+        pass
+
+    def find_vel(self, d_lambda_craft):
+        phi, d_lambda_star = self.get_ref_stars()
+        d_lambda_craft = self.SM.measure_star_doppler_shifts()
+        v_doppler = self.vel(phi, d_lambda_craft)
+        return v_doppler
+
+    def find_distances(self):
+        # Finds distances to planets from craft
+        self.distances = self.SM.measure_distances()
+
+    def interpolate_planet_positions(self, time, dt_sim, orbit_data):
+        t_index = time / dt_sim
+        dr = t_index - int(t_index)
+        planet_positions = np.zeros((len(orbit_data[1]), 2))
+        for i in range(self.SS.number_of_planets):
+            planet_positions = orbit_data[: , i, int(t_index)] + (orbit_data[:, i, int(t_index)+1] - orbit_data[:, i, int(t_index)])*dr
+        return planet_positions
 
 
+    def trilateration(self, p0, p1):
+        # p0 = 1, p1 = 3
+        tol = 1e-5
+        star = np.array((0,0))
+        planet0 = self.orbits[:,p0,:]
+        planet1 = self.orbits[:,p1,:]
+        a, b = planet0[0,:], planet0[1,:]
+        c, d = planet1[0,:], planet1[1,:]
+        x = Symbol("x")
+        y = Symbol("y")
+        symbols = [x,y]
+        circ0 = (x-a)**2 + (y-b)**2 - self.distances[p0]**2
+        circ1 = (x-c)**2 + (y-d)**2 - self.distances[p1]**2
+        sys = [circ0, circ1]
+        craft_position_calc = solve(sys,symbols)
+        pos1, pos2 = craft_position_calc
 
+        r_pos1 = self.xy_to_r(pos1)
+        r_pos2 = self.xy_to_r(pos2)
+
+        if (np.abs(self.distances[-1]-tol) <= r_pos1) and (np.abs(self.distances[-1]+tol) >= r_pos1):
+            craft_position = pos1
+        elif (np.abs(self.distances[-1]-tol) <= r_pos2) and (np.abs(self.distances[-1]+tol) >= r_pos2):
+            craft_position = pos2
+        else:
+            print("Trilateration Failed")
+
+        return craft_position
+
+    def use_shortcuts(codes):
+        smc = SpaceMissionShortcuts(self.SM, codes)
+        mass_loss_per_box = 1.1805443079679857e-13
+        thrust_per_box = 5.217446656131653e-10
+        boxes = 5e15
 
 
 
@@ -252,7 +326,7 @@ if __name__ == "__main__":
     img_360 = "himmelkule_"
     #SC.make_360_pics(tar_dir, sample_FOV, sample_theta_0, img_size, img_360)
 
-    SC.make_360_array(tar_dir, img_360, img_size, "himmelkule_ref")
+    #SC.make_360_array(tar_dir, img_360, img_size, "himmelkule_ref")
 
     """
     This runs the test_determine_angle function, and takes a while to run
