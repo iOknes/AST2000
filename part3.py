@@ -58,11 +58,22 @@ Returns:
 required_proximity_distance: the best case scenario distance from a planet that
 makes it the dominant force on an object
 """
-def get_required_proximity(solar_system, target_planet):
+def get_required_proximity_solar_system(solar_system, target_planet):
     m_s = solar_system.star_mass
     m_p = solar_system.masses[target_planet]
     r = solar_system.semi_major_axes[target_planet]
     return r * np.sqrt(m_p / (5 * m_s))
+
+def get_required_proximity(sattelite_position, planet_masses, star_positon, star_mass, target_planet=None, k=5):
+    sattelite_position = np.array(sattelite_position)
+    star_positon = np.array(star_positon)
+    m_s = star_mass
+    if target_planet is None:
+        m_p = planet_masses
+    else:
+        m_p = planet_masses[target_planet]
+    r = np.linalg.norm(sattelite_position - star_positon)
+    return r * np.sqrt(m_p / (k * m_s))
 
 class SpaceMission:
     def __init__(self, rocket_motor=None, log_dir="logs/numerical_long.npy"):

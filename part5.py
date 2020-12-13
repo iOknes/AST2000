@@ -23,21 +23,21 @@ fast (bool, optional): If True, will skip all complicated calculations and use n
 Returns:
 Numpy array of position of planet at specified time [dimensions] 
 """
-def get_specific_planet_position(positions, times, planet, time, fast=False):
+def get_specific_planet_positions(positions, times, time, fast=False):
     if time > np.max(times) or time < np.min(times):
         raise ValueError("Time for requested position not a valid time.")
     dt = times[1] - times[0]
     previous_index = int(time / dt) #int casting always rounds down
     if time in times:
-        return positions[np.where(times == time)[0][-1], planet, :]
+        return positions[np.where(times == time)[0][-1], :, :]
     if fast:
         time_diff = np.abs(times - time)
         i = np.where(time_diff == np.min(time_diff))[0][-1]
         #[0][-1] last of indexes in case the are two (array nesten in tuple)
-        return positions[i, planet, :]
+        return positions[i, :, :]
     d_step = (time - times[previous_index]) / dt
-    r_step = (positions[previous_index + 1, planet, :] - positions[previous_index, planet, :]) * d_step / dt
-    return positions[previous_index, planet, :] + r_step
+    r_step = (positions[previous_index + 1, :, :] - positions[previous_index, :, :]) * d_step / dt
+    return positions[previous_index, :, :] + r_step
 
 """
 Simulate trajectory for the sattelite for a given length of time at a certain
@@ -56,12 +56,14 @@ t_final: end time of simulation
 r_final: satellite position after simulating
 v_final: satellite velocity after simulating
 """
-def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy"):
+def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy", username="ivero"):
     #Load simulated planet positions and time from part 2
     log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
     infile = np.load(log_dir, allow_pickle=True)
     t = infile["times"]
     r = infile["planet_positions"].T
+
+    SolSys = SolarSystem(utils.get_seed(username))
 
     #Raise exception if trying to simulate further than simulated in part 2
     if t0 + T > t[-1]:
@@ -72,7 +74,41 @@ def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy
     if dt is None:
         dt = dt_sim
 
+    N = int((T - t0) / dt)
+    
+    #Initialize arrays
+    r_sat = np.zeros((N,2))
+    v_sat = np.zeros((N,2))
+    r_sat[0] = r0
+    v_sat[0] = v0
+    #test = get_required_proximity(r0, SolSys.masses, [0,0], SolSys.star_mass, 1)
 
+    for i in range(N-1):
+        r_ = get_specific_planet_positions(r, t, i * dt + t0, False)
+        req_prox = get_required_proximity(r_, SolSys.masses, [0,0], SolSys.star_mass)
+        dom_force = np.linalg.norm(r_, axis=1) <= req_prox
+        if np.sum(dom_force == 0):
+            r_force = np.array([0,0])
+            m_force = SolSys.star_mass
+        else:
+            r_force = r_[dom_force]
+            m_force = SolSys.masses[dom_force]
+
+        v_sat[i+1] = v_sat[i] + const.G_sol * m_force / np.linalg.norm(r_force)**2 * dt
+        r_sat[i+1] = r_sat[i] + v_sat[i+1] * dt
+
+    return r_sat, v_sat
 
 if __name__ == "__main__":
-    pass
+    infile = np.load("logs/numerical_long.npy", allow_pickle=True)
+    t = infile["times"]
+    r = infile["planet_positions"].T
+    t0 = 0
+    r0 = r[0,0,:] + 1e-2
+    v0 = (r[1,0,:] - r[0,0,:]) * 3
+    dt = (t[1] - t[0]) * 10
+    r_sat, v_sat = simulate_trajectory(t0, r0, v0, 0.1, dt)
+    for i in range(len(r[0])):
+        plt.plot(r[:,i,0], r[:,i,1])
+    plt.plot(r_sat[:,0], r_sat[:,1], "--")
+    plt.show()
