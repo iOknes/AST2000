@@ -84,17 +84,20 @@ def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy
     #test = get_required_proximity(r0, SolSys.masses, [0,0], SolSys.star_mass, 1)
 
     for i in range(N-1):
+        print(i)
         r_ = get_specific_planet_positions(r, t, i * dt + t0, False)
         req_prox = get_required_proximity(r_, SolSys.masses, [0,0], SolSys.star_mass)
         dom_force = np.linalg.norm(r_, axis=1) <= req_prox
-        if np.sum(dom_force == 0):
+        print(dom_force)
+        if np.sum(dom_force) == 0:
             r_force = np.array([0,0])
             m_force = SolSys.star_mass
         else:
             r_force = r_[dom_force]
             m_force = SolSys.masses[dom_force]
-
-        v_sat[i+1] = v_sat[i] + const.G_sol * m_force / np.linalg.norm(r_force)**2 * dt
+        r_ = r_[dom_force]
+        r_norm = np.linalg.norm(r_force - r_sat[i])
+        v_sat[i+1] = v_sat[i] + (r_force - r_sat[i]) / r_norm * const.G_sol * m_force / r_norm**2 * dt
         r_sat[i+1] = r_sat[i] + v_sat[i+1] * dt
 
     return r_sat, v_sat
@@ -105,10 +108,11 @@ if __name__ == "__main__":
     r = infile["planet_positions"].T
     t0 = 0
     r0 = r[0,0,:] + 1e-2
-    v0 = (r[1,0,:] - r[0,0,:]) * 3
+    v0 = (r[1,0,:] - r[0,0,:]) / (t[1] - t[0]) * 3
     dt = (t[1] - t[0]) * 10
-    r_sat, v_sat = simulate_trajectory(t0, r0, v0, 0.1, dt)
+    r_sat, v_sat = simulate_trajectory(t0, r0, v0, 0.05, dt)
     for i in range(len(r[0])):
         plt.plot(r[:,i,0], r[:,i,1])
-    plt.plot(r_sat[:,0], r_sat[:,1], "--")
+    plt.plot(r_sat[:,0], r_sat[:,1], "--", label="satellite")
+    plt.legend()
     plt.show()
