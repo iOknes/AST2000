@@ -84,11 +84,9 @@ def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy
     #test = get_required_proximity(r0, SolSys.masses, [0,0], SolSys.star_mass, 1)
 
     for i in range(N-1):
-        print(i)
         r_ = get_specific_planet_positions(r, t, i * dt + t0, False)
-        req_prox = get_required_proximity(r_, SolSys.masses, [0,0], SolSys.star_mass)
+        req_prox = get_required_proximity(r_, SolSys.masses, [0,0], SolSys.star_mass, k=10)
         dom_force = np.linalg.norm(r_, axis=1) <= req_prox
-        print(dom_force)
         if np.sum(dom_force) == 0:
             r_force = np.array([0,0])
             m_force = SolSys.star_mass
