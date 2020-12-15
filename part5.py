@@ -105,12 +105,15 @@ if __name__ == "__main__":
     t = infile["times"]
     r = infile["planet_positions"].T
     t0 = 0
+    T = t0 + 0.05
     r0 = r[0,0,:] + 1e-2
-    v0 = (r[1,0,:] - r[0,0,:]) / (t[1] - t[0]) * 3
-    dt = (t[1] - t[0]) * 10
-    r_sat, v_sat = simulate_trajectory(t0, r0, v0, 0.05, dt)
+    v0 = (r[1,0,:] - r[0,0,:]) / (t[1] - t[0]) * 1.5
+    dt_sim = t[1] - t[0]
+    dt = dt_sim * 10
+    r_sat, v_sat = simulate_trajectory(t0, r0, v0, T, dt)
     for i in range(len(r[0])):
-        plt.plot(r[:,i,0], r[:,i,1])
+        plt.plot(r[:,i,0], r[:,i,1], label=f"Planet {i}")
     plt.plot(r_sat[:,0], r_sat[:,1], "--", label="satellite")
-    plt.legend()
+    plt.legend(loc="upper left")
+    plt.axis("equal")
     plt.show()
