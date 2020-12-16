@@ -1,4 +1,4 @@
-# Egen kode
+#Egen kode
 
 import time
 import multiprocessing as mp
@@ -59,7 +59,12 @@ class Rocket_Chamber():
 
 
     def set_seed(self):
-        self.seed = utils.get_seed(self.username)
+        if type(seed) is str:
+            self.seed = utils.get_seed(self.username)
+        elif type(seed) is int:
+            self.seed = self.username
+        else:
+            raise ValueError(f"Username argument must be either string or int, not {type(seed)}!")
         np.random.seed(self.seed)
 
     def get_id(self):

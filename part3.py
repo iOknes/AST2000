@@ -83,7 +83,7 @@ class SpaceMission:
         self.t = infile['times']
         self.p = infile['planet_positions'].T
         if rocket_motor == None:
-            self.rocket_motor = Rocket_Chamber(username="ivero", cache=False)
+            self.rocket_motor = Rocket_Chamber(username="67085", cache=False)
             self.rocket_motor.run_chamber_mp()
         else:
             self.rocket_motor = rocket_motor
@@ -105,7 +105,7 @@ class SpaceMission:
             r[i] = r[i-1]
 
 if __name__ == "__main__":
-    username = "ivero"
+    username = "67085"
     seed = utils.get_seed(username)
     SolSys = SolarSystem(seed)
     habitable_planets = find_habitable_planets(SolSys)

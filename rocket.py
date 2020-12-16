@@ -270,9 +270,7 @@ class Rocket():
 
 
 if __name__ == "__main__":
-    # We're using Iver's seed from now on
-    username = "ivero"
-    #username = "jrevense"
+    username = "67085"
 
     RC1 = Rocket_Chamber(username = username,
                          temp = 3e3,

@@ -57,7 +57,7 @@ t_final: end time of simulation
 r_final: satellite position after simulating
 v_final: satellite velocity after simulating
 """
-def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy", username="ivero"):
+def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy", username="67085"):
     #Load simulated planet positions and time from part 2
     log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
     infile = np.load(log_dir, allow_pickle=True)
