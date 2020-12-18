@@ -1,3 +1,4 @@
+#Egen kode
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -28,7 +29,7 @@ def find_habitable_planets(solar_system, T_min=260, T_max=390):
     return (T >= T_min) * (T <= T_max)
 
 """
-Returns required solar panel size for operating a lander at a given planet.
+Calculates required solar panel size for operating a lander at a given planet.
 
 Arguments:
 solar_system: ast2000tools.solar_system.SolarSystem instance where the planet and star are located
@@ -46,6 +47,35 @@ def find_lander_panel_size(solar_system, target_planet, efficiency=0.12, target_
     return target_effect * semi_major_axis**2 / \
     (efficiency * const.sigma * solar_system.star_temperature**4 * star_radius**2)
 
+"""
+Calculates best case scenario proximity to a planet for it to be considered the
+dominant gravitational force on an object.
+
+Arguments:
+solar_system: ast2000tools.solar_system.SolarSystem instance where the planet and star are located
+target_planet: the index of the planet in the solar system the lander will be going to
+
+Returns:
+required_proximity_distance: the best case scenario distance from a planet that
+makes it the dominant force on an object
+"""
+def get_required_proximity_solar_system(solar_system, target_planet):
+    m_s = solar_system.star_mass
+    m_p = solar_system.masses[target_planet]
+    r = solar_system.semi_major_axes[target_planet]
+    return r * np.sqrt(m_p / (5 * m_s))
+
+def get_required_proximity(sattelite_position, planet_masses, star_positon, star_mass, target_planet=None, k=5):
+    sattelite_position = np.array(sattelite_position)
+    star_positon = np.array(star_positon)
+    m_s = star_mass
+    if target_planet is None:
+        m_p = planet_masses
+    else:
+        m_p = planet_masses[target_planet]
+    r = np.linalg.norm(sattelite_position - star_positon)
+    return r * np.sqrt(m_p / (k * m_s))
+
 class SpaceMission:
     def __init__(self, rocket_motor=None, log_dir="logs/numerical_long.npy"):
         log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
@@ -53,7 +83,7 @@ class SpaceMission:
         self.t = infile['times']
         self.p = infile['planet_positions'].T
         if rocket_motor == None:
-            self.rocket_motor = Rocket_Chamber(username="ivero", cache=False)
+            self.rocket_motor = Rocket_Chamber(username="67085", cache=False)
             self.rocket_motor.run_chamber_mp()
         else:
             self.rocket_motor = rocket_motor
@@ -75,7 +105,7 @@ class SpaceMission:
             r[i] = r[i-1]
 
 if __name__ == "__main__":
-    username = "ivero"
+    username = "67085"
     seed = utils.get_seed(username)
     SolSys = SolarSystem(seed)
     habitable_planets = find_habitable_planets(SolSys)

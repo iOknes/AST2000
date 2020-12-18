@@ -1,3 +1,6 @@
+#Egen kode
+#Litt ubrukelig, men fortsatt egen...
+
 import sys
 
 n_box = float(sys.argv[1])

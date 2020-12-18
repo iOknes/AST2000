@@ -1,7 +1,6 @@
+#Egen kode
 from numba import jit
 import numpy as np
-
-
 
 @jit(cache = True, nopython = True)
 def calc_orbit_EC(pos, vel, G, N, dt, sun_mass, planet_masses):
