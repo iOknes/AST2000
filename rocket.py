@@ -56,7 +56,12 @@ class Rocket():
 
 
     def set_seed(self):
-        self.seed = utils.get_seed(self.username)
+        if type(self.username) is str:
+            self.seed = utils.get_seed(self.username)
+        elif type(self.username) is int:
+            self.seed = self.username
+        else:
+            raise ValueError("Type of username must be either string or int!")
         np.random.seed(self.seed)
 
     def load_sim_log(self):
@@ -270,7 +275,7 @@ class Rocket():
 
 
 if __name__ == "__main__":
-    username = "67085"
+    username = 67085
 
     RC1 = Rocket_Chamber(username = username,
                          temp = 3e3,

@@ -57,14 +57,19 @@ t_final: end time of simulation
 r_final: satellite position after simulating
 v_final: satellite velocity after simulating
 """
-def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy", username="67085"):
+def simulate_trajectory(t0, r0, v0, T, dt=None, log_dir="logs/numerical_long.npy", username=67085):
     #Load simulated planet positions and time from part 2
     log_dir += ".npy" if log_dir[-4:] != ".npy" else ''
     infile = np.load(log_dir, allow_pickle=True)
     t = infile["times"]
     r = infile["planet_positions"].T
 
-    SolSys = SolarSystem(utils.get_seed(username))
+    if type(username) is str:
+        SolSys = SolarSystem(utils.get_seed(username))
+    elif type(username) is int:
+        SolSys = SolarSystem(username)
+    else:
+        raise ValueError("Username must be either string or int!")
 
     #Raise exception if trying to simulate further than simulated in part 2
     if t0 + T > t[-1]:
@@ -116,5 +121,7 @@ if __name__ == "__main__":
         plt.plot(r[:,i,0], r[:,i,1], label=f"Planet {i}")
     plt.plot(r_sat[:,0], r_sat[:,1], "--", label="satellite")
     plt.legend(loc="upper left")
+    plt.xlabel("x position [AU]")
+    plt.ylabel("y position [AU]")
     plt.axis("equal")
     plt.show()

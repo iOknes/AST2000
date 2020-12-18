@@ -169,7 +169,7 @@ class Rocket_Chamber():
 
 
 if __name__ == "__main__":
-    RC1 = Rocket_Chamber(username = "jrevense",
+    RC1 = Rocket_Chamber(username = 67085,
                          temp = 3e3,
                          time_run = 1e-9,
                          dt=1e-12,

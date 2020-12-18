@@ -105,8 +105,7 @@ class SpaceMission:
             r[i] = r[i-1]
 
 if __name__ == "__main__":
-    username = "67085"
-    seed = utils.get_seed(username)
+    seed = 67085
     SolSys = SolarSystem(seed)
     habitable_planets = find_habitable_planets(SolSys)
     print(np.arange(len(habitable_planets))[habitable_planets])

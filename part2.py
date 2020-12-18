@@ -333,7 +333,7 @@ class PlanetOrbits():
 
 if __name__ == "__main__":
 
-    username = "67085"
+    username = 67085
     log_dir = "__cache__"
     img_dir = "plots"
     id = 23132
